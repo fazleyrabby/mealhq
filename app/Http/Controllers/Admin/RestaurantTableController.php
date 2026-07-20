@@ -5,20 +5,30 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\RestaurantTable;
 use App\Models\TableZone;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class RestaurantTableController extends Controller
 {
-    public function indexTables()
+    public function indexTables(Request $request, AdminListingService $listing)
     {
-        $tables = RestaurantTable::with('zone')->orderBy('sort_order')->paginate(20);
+        $result = $listing->process(
+            RestaurantTable::with('zone'),
+            ['name'],
+            [
+                'status' => ['available', 'occupied', 'reserved', 'cleaning', 'maintenance'],
+                'is_active' => ['1', '0'],
+            ],
+            'name',
+            'asc'
+        );
 
-        return view('admin.operations.tables.index', compact('tables'));
+        return view('admin.operations.tables.index', $result + ['tables' => $result['items']]);
     }
 
     public function createTable()
     {
-        $zones = TableZone::active()->get();
+        $zones = TableZone::orderBy('name')->get();
 
         return view('admin.operations.tables.form', ['table' => null, 'zones' => $zones]);
     }
@@ -26,11 +36,10 @@ class RestaurantTableController extends Controller
     public function storeTable(Request $request)
     {
         $validated = $request->validate([
+            'name' => 'required|string|max:50',
             'zone_id' => 'nullable|exists:table_zones,id',
-            'table_number' => 'required|string|max:10',
             'capacity' => 'required|integer|min:1',
-            'status' => 'required|in:available,occupied,reserved,cleaning,maintenance',
-            'sort_order' => 'integer|min:0',
+            'is_active' => 'boolean',
         ]);
 
         RestaurantTable::create($validated);
@@ -40,7 +49,7 @@ class RestaurantTableController extends Controller
 
     public function editTable(RestaurantTable $table)
     {
-        $zones = TableZone::active()->get();
+        $zones = TableZone::orderBy('name')->get();
 
         return view('admin.operations.tables.form', compact('table', 'zones'));
     }
@@ -48,11 +57,10 @@ class RestaurantTableController extends Controller
     public function updateTable(Request $request, RestaurantTable $table)
     {
         $validated = $request->validate([
+            'name' => 'required|string|max:50',
             'zone_id' => 'nullable|exists:table_zones,id',
-            'table_number' => 'required|string|max:10',
             'capacity' => 'required|integer|min:1',
-            'status' => 'required|in:available,occupied,reserved,cleaning,maintenance',
-            'sort_order' => 'integer|min:0',
+            'is_active' => 'boolean',
         ]);
 
         $table->update($validated);
@@ -69,7 +77,7 @@ class RestaurantTableController extends Controller
 
     public function indexZones()
     {
-        $zones = TableZone::withCount('tables')->orderBy('sort_order')->paginate(20);
+        $zones = TableZone::with('tables')->orderBy('name')->get();
 
         return view('admin.operations.zones.index', compact('zones'));
     }
@@ -77,10 +85,8 @@ class RestaurantTableController extends Controller
     public function storeZone(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'color' => 'nullable|string|max:20',
-            'sort_order' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'name' => 'required|string|max:100|unique:table_zones,name',
+            'description' => 'nullable|string|max:255',
         ]);
 
         TableZone::create($validated);

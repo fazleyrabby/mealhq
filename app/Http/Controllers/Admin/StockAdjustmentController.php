@@ -5,20 +5,27 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ingredient;
 use App\Models\StockAdjustment;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class StockAdjustmentController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $adjustments = StockAdjustment::with('ingredient', 'adjustedBy')->latest()->paginate(20);
+        $result = $listing->process(
+            StockAdjustment::with('ingredient.unit', 'user'),
+            [],
+            ['type' => ['addition', 'removal', 'correction']],
+            'created_at',
+            'desc'
+        );
 
-        return view('admin.inventory.adjustments.index', compact('adjustments'));
+        return view('admin.inventory.adjustments.index', $result + ['adjustments' => $result['items']]);
     }
 
     public function create()
     {
-        $ingredients = Ingredient::active()->with('unit')->get();
+        $ingredients = Ingredient::where('is_active', true)->with('unit')->orderBy('name')->get();
 
         return view('admin.inventory.adjustments.form', ['adjustment' => null, 'ingredients' => $ingredients]);
     }
@@ -27,18 +34,24 @@ class StockAdjustmentController extends Controller
     {
         $validated = $request->validate([
             'ingredient_id' => 'required|exists:ingredients,id',
-            'type' => 'required|in:addition,removal,correction,waste,return',
+            'type' => 'required|in:addition,removal,correction',
             'quantity' => 'required|numeric|min:0',
             'reason' => 'nullable|string',
         ]);
 
-        StockAdjustment::adjustStock(
-            $validated['ingredient_id'],
-            $validated['type'],
-            $validated['quantity'],
-            $validated['reason'] ?? null,
-            auth()->id()
-        );
+        $ingredient = Ingredient::findOrFail($validated['ingredient_id']);
+
+        // Create the adjustment
+        StockAdjustment::create([
+            'ingredient_id' => $validated['ingredient_id'],
+            'user_id' => auth()->id(),
+            'type' => $validated['type'],
+            'quantity' => $validated['quantity'],
+            'reason' => $validated['reason'],
+        ]);
+
+        // Update stock
+        $ingredient->adjustStock($validated['type'], $validated['quantity']);
 
         return redirect()->route('admin.inventory.adjustments.index')->with('success', 'Stock adjustment recorded.');
     }

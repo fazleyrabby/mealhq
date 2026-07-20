@@ -9,125 +9,189 @@
     <link href="{{ asset('tabler/css/tabler.min.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
-<body>
+<body class="layout-fluid">
     <script src="{{ asset('tabler/js/tabler-theme.min.js') }}"></script>
     <div class="page">
-        <!-- Top navbar -->
-        <header class="navbar navbar-expand-md d-print-none">
-            <div class="container-xl">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
+
+        <!-- Sidebar -->
+        <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+            <div class="container-fluid">
+                <!-- Mobile toggler -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+                    aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                    <a href="{{ route('admin.dashboard') }}" class="text-xl font-bold text-orange-600" style="color: var(--tblr-primary)">MealHQ</a>
+
+                <!-- Logo -->
+                <div class="navbar-brand navbar-brand-autodark">
+                    <a href="{{ route('admin.dashboard') }}" class="text-white text-decoration-none fs-3 fw-bold">MealHQ</a>
                 </div>
-                <div class="navbar-nav flex-row order-md-last">
+
+                <!-- Mobile action icons -->
+                <div class="navbar-nav flex-row d-lg-none">
                     <div class="nav-item dropdown">
-                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-                            <span class="avatar avatar-sm">{{ substr(auth()->user()->name, 0, 2) }}</span>
-                            <div class="d-none d-xl-block ps-2">
-                                <div>{{ auth()->user()->name }}</div>
-                                <div class="mt-1 small text-secondary">{{ auth()->user()->email }}</div>
-                            </div>
+                        <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown" aria-label="Open user menu">
+                            <span class="avatar avatar-sm">{{ auth()->check() ? substr(auth()->user()->name, 0, 2) : '?' }}</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                             <a href="{{ route('admin.settings') }}" class="dropdown-item">Settings</a>
                             <div class="dropdown-divider"></div>
-                            <form method="POST" action="{{ route('logout') }}">
+                            <form method="POST" action="{{ route('admin.logout') }}">
                                 @csrf
                                 <button type="submit" class="dropdown-item">Logout</button>
                             </form>
                         </div>
                     </div>
                 </div>
-            </div>
-        </header>
 
-        <div class="navbar-expand-md">
-            <div class="collapse navbar-collapse" id="navbar-menu">
-                <div class="navbar navbar-light">
-                    <div class="container-xl">
-                        <ul class="navbar-nav">
-                            <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                                    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                                    Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                                    CMS
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{{ route('admin.cms.pages.index') }}">Pages</a>
-                                    <a class="dropdown-item" href="{{ route('admin.cms.promotions.index') }}">Promotions</a>
-                                    <a class="dropdown-item" href="{{ route('admin.cms.gallery.index') }}">Gallery</a>
-                                    <a class="dropdown-item" href="{{ route('admin.cms.faqs.index') }}">FAQs</a>
-                                    <a class="dropdown-item" href="{{ route('admin.cms.inquiries.index') }}">Contact Inquiries</a>
+                <!-- Navigation menu -->
+                <div class="collapse navbar-collapse" id="sidebar-menu">
+                    <ul class="navbar-nav pt-lg-3">
+                        <!-- Dashboard -->
+                        <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                </span>
+                                <span class="nav-link-title">Dashboard</span>
+                            </a>
+                        </li>
+
+                        <!-- CMS -->
+                        <li class="nav-item dropdown {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle" href="#navbar-cms" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->routeIs('admin.cms.*') ? 'true' : 'false' }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                                </span>
+                                <span class="nav-link-title">CMS</span>
+                            </a>
+                            <ul class="dropdown-menu" data-bs-popper="none">
+                                <li><a class="dropdown-item" href="{{ route('admin.cms.pages.index') }}">Pages</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.cms.promotions.index') }}">Promotions</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.cms.faqs.index') }}">FAQs</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.cms.gallery.index') }}">Gallery</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.cms.inquiries.index') }}">Inquiries</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Menu -->
+                        <li class="nav-item dropdown {{ request()->routeIs('admin.menu.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle" href="#navbar-menu" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->routeIs('admin.menu.*') ? 'true' : 'false' }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+                                </span>
+                                <span class="nav-link-title">Menu</span>
+                            </a>
+                            <ul class="dropdown-menu" data-bs-popper="none">
+                                <li><a class="dropdown-item" href="{{ route('admin.menu.categories.index') }}">Categories</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.menu.items.index') }}">Menu Items</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.menu.modifiers.index') }}">Modifiers</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Inventory -->
+                        <li class="nav-item dropdown {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle" href="#navbar-inventory" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->routeIs('admin.inventory.*') ? 'true' : 'false' }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                                </span>
+                                <span class="nav-link-title">Inventory</span>
+                            </a>
+                            <ul class="dropdown-menu" data-bs-popper="none">
+                                <li><a class="dropdown-item" href="{{ route('admin.inventory.ingredients.index') }}">Ingredients</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.inventory.recipes.index') }}">Recipes</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.inventory.suppliers.index') }}">Suppliers</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.inventory.purchase-orders.index') }}">Purchase Orders</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.inventory.adjustments.index') }}">Stock Adjustments</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Orders -->
+                        <li class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ route('admin.orders.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+                                </span>
+                                <span class="nav-link-title">Orders</span>
+                            </a>
+                        </li>
+
+                        <!-- Operations -->
+                        <li class="nav-item dropdown {{ request()->routeIs('admin.operations.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle" href="#navbar-operations" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->routeIs('admin.operations.*') ? 'true' : 'false' }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                </span>
+                                <span class="nav-link-title">Operations</span>
+                            </a>
+                            <ul class="dropdown-menu" data-bs-popper="none">
+                                <li><a class="dropdown-item" href="{{ route('admin.operations.tables.index') }}">Tables</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.operations.zones.index') }}">Zones</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.operations.drawers.index') }}">POS Drawers</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.operations.kds.index') }}">KDS Stations</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Settings -->
+                        <li class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ route('admin.settings') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                </span>
+                                <span class="nav-link-title">Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="page-wrapper">
+
+            <!-- Top header bar with user menu -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">@yield('title', 'Dashboard')</h2>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            @auth
+                            <div class="btn-list">
+                                <div class="dropdown">
+                                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+                                        <span class="avatar avatar-sm">{{ substr(auth()->user()->name, 0, 2) }}</span>
+                                        <div class="d-none d-xl-block ps-2">
+                                            <div>{{ auth()->user()->name }}</div>
+                                            <div class="mt-1 small text-secondary">{{ auth()->user()->email }}</div>
+                                        </div>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                        <a href="{{ route('admin.settings') }}" class="dropdown-item">Settings</a>
+                                        <div class="dropdown-divider"></div>
+                                        <form method="POST" action="{{ route('admin.logout') }}">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item">Logout</button>
+                                        </form>
+                                    </div>
                                 </div>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                    Menu
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{{ route('admin.menu.categories.index') }}">Categories</a>
-                                    <a class="dropdown-item" href="{{ route('admin.menu.items.index') }}">Menu Items</a>
-                                    <a class="dropdown-item" href="{{ route('admin.menu.modifiers.index') }}">Modifier Groups</a>
-                                </div>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                                    Inventory
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{{ route('admin.inventory.ingredients.index') }}">Ingredients</a>
-                                    <a class="dropdown-item" href="{{ route('admin.inventory.recipes.index') }}">Recipes</a>
-                                    <a class="dropdown-item" href="{{ route('admin.inventory.suppliers.index') }}">Suppliers</a>
-                                    <a class="dropdown-item" href="{{ route('admin.inventory.purchase-orders.index') }}">Purchase Orders</a>
-                                    <a class="dropdown-item" href="{{ route('admin.inventory.adjustments.index') }}">Stock Adjustments</a>
-                                </div>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.orders.index') }}">
-                                    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                                    Orders
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                    Operations
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{{ route('admin.operations.tables.index') }}">Tables</a>
-                                    <a class="dropdown-item" href="{{ route('admin.operations.zones.index') }}">Zones</a>
-                                    <a class="dropdown-item" href="{{ route('admin.operations.drawers.index') }}">POS Drawers</a>
-                                    <a class="dropdown-item" href="{{ route('admin.operations.kds.index') }}">KDS Stations</a>
-                                </div>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.settings') }}">
-                                    <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                    Settings
-                                </a>
-                            </li>
-                        </ul>
+                            </div>
+                            @endauth
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="page-wrapper">
+            <!-- Page body -->
             <div class="page-body">
                 <div class="container-xl">
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible" role="alert">
                             <div class="d-flex">
-                                <div><svg class="icon" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+                                <div>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                </div>
                                 <div>{{ session('success') }}</div>
                             </div>
                             <a class="btn-close" data-bs-dismiss="alert"></a>
@@ -136,7 +200,9 @@
                     @if(session('error'))
                         <div class="alert alert-danger alert-dismissible" role="alert">
                             <div class="d-flex">
-                                <div><svg class="icon" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg></div>
+                                <div>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                </div>
                                 <div>{{ session('error') }}</div>
                             </div>
                             <a class="btn-close" data-bs-dismiss="alert"></a>
@@ -145,6 +211,8 @@
                     @yield('content')
                 </div>
             </div>
+
+            <!-- Footer -->
             <footer class="footer footer-transparent d-print-none">
                 <div class="container-xl">
                     <div class="row text-center align-items-center flex-row-reverse">
@@ -156,6 +224,7 @@
             </footer>
         </div>
     </div>
+
     <script src="{{ asset('tabler/js/tabler.min.js') }}"></script>
     @stack('scripts')
 </body>

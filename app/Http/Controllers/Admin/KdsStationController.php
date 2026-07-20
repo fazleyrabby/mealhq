@@ -4,25 +4,29 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\KdsStation;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class KdsStationController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $stations = KdsStation::withCount('orders')->orderBy('sort_order')->paginate(20);
+        $result = $listing->process(
+            KdsStation::query(),
+            ['name', 'description'],
+            ['is_active' => ['1', '0']],
+            'name',
+            'asc'
+        );
 
-        return view('admin.operations.kds.index', compact('stations'));
+        return view('admin.operations.kds.index', $result + ['stations' => $result['items']]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'display_name' => 'nullable|string|max:100',
-            'type' => 'required|in:kitchen,bar,grill,prep,expo',
-            'sort_order' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'name' => 'required|string|max:100|unique:kds_stations,name',
+            'description' => 'nullable|string|max:255',
         ]);
 
         KdsStation::create($validated);

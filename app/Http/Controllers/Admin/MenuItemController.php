@@ -5,20 +5,27 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\MenuItem;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class MenuItemController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $items = MenuItem::with('category')->withTrashed()->orderBy('sort_order')->paginate(20);
+        $result = $listing->process(
+            MenuItem::with('category'),
+            ['name', 'slug'],
+            ['is_active' => ['1', '0'], 'channel_visibility' => ['both', 'web', 'pos']],
+            'name',
+            'asc'
+        );
 
-        return view('admin.menu.items.index', compact('items'));
+        return view('admin.menu.items.index', $result + ['items' => $result['items']]);
     }
 
     public function create()
     {
-        $categories = Category::active()->get();
+        $categories = Category::where('is_active', true)->get();
 
         return view('admin.menu.items.form', ['item' => null, 'categories' => $categories]);
     }
@@ -26,20 +33,15 @@ class MenuItemController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:150',
-            'slug' => 'nullable|string|max:150|unique:menu_items,slug',
+            'name' => 'required|string|max:200',
+            'slug' => 'nullable|string|max:200|unique:menu_items,slug',
             'description' => 'nullable|string',
-            'ingredients' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
-            'cost_price' => 'nullable|numeric|min:0',
-            'prep_time_minutes' => 'nullable|integer|min:0',
-            'calories' => 'nullable|integer|min:0',
+            'channel_visibility' => 'required|in:both,web,pos',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
-            'channel_visibility' => 'required|in:all,web_only,pos_only,qr_only',
-            'unit_type' => 'required|in:each,per_plate,per_kg,per_liter,per_dozen',
-            'sort_order' => 'integer|min:0',
+            'is_taxable' => 'boolean',
         ]);
 
         MenuItem::create($validated);
@@ -49,28 +51,23 @@ class MenuItemController extends Controller
 
     public function edit(MenuItem $item)
     {
-        $categories = Category::active()->get();
+        $categories = Category::where('is_active', true)->get();
 
-        return view('admin.menu.items.form', ['item' => $item, 'categories' => $categories]);
+        return view('admin.menu.items.form', compact('item', 'categories'));
     }
 
     public function update(Request $request, MenuItem $item)
     {
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:150',
-            'slug' => 'nullable|string|max:150|unique:menu_items,slug,'.$item->id,
+            'name' => 'required|string|max:200',
+            'slug' => 'nullable|string|max:200|unique:menu_items,slug,'.$item->id,
             'description' => 'nullable|string',
-            'ingredients' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
-            'cost_price' => 'nullable|numeric|min:0',
-            'prep_time_minutes' => 'nullable|integer|min:0',
-            'calories' => 'nullable|integer|min:0',
+            'channel_visibility' => 'required|in:both,web,pos',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
-            'channel_visibility' => 'required|in:all,web_only,pos_only,qr_only',
-            'unit_type' => 'required|in:each,per_plate,per_kg,per_liter,per_dozen',
-            'sort_order' => 'integer|min:0',
+            'is_taxable' => 'boolean',
         ]);
 
         $item->update($validated);
@@ -87,6 +84,8 @@ class MenuItemController extends Controller
 
     public function variants(MenuItem $item)
     {
+        $item->load('variants');
+
         return view('admin.menu.items.variants', compact('item'));
     }
 
@@ -95,13 +94,11 @@ class MenuItemController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'price_adjustment' => 'required|numeric',
-            'sku' => 'nullable|string|max:50|unique:menu_item_variants,sku',
-            'sort_order' => 'integer|min:0',
             'is_active' => 'boolean',
         ]);
 
         $item->variants()->create($validated);
 
-        return redirect()->route('admin.menu.items.variants', $item)->with('success', 'Variant added.');
+        return back()->with('success', 'Variant added.');
     }
 }

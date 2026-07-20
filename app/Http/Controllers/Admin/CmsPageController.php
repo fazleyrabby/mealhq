@@ -4,15 +4,31 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CmsPage;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class CmsPageController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $pages = CmsPage::with('sections')->latest()->paginate(20);
+        $result = $listing->process(
+            CmsPage::with('sections'),
+            ['title', 'slug'],
+            ['is_active' => ['1', '0']],
+            'created_at',
+            'desc'
+        );
 
-        return view('admin.cms.pages.index', compact('pages'));
+        $pages = $result['items'];
+        $sortField = $result['sortField'];
+        $sortDir = $result['sortDir'];
+        $search = $result['search'];
+        $appliedFilters = $result['appliedFilters'];
+        $perPage = $result['perPage'];
+
+        return view('admin.cms.pages.index', compact(
+            'pages', 'sortField', 'sortDir', 'search', 'appliedFilters', 'perPage'
+        ));
     }
 
     public function create()

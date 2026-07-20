@@ -4,15 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $categories = Category::with('parent')->withTrashed()->orderBy('sort_order')->paginate(20);
+        $result = $listing->process(
+            Category::with('parent')->withTrashed(),
+            ['name', 'slug'],
+            ['is_active' => ['1', '0']],
+            'sort_order',
+            'asc'
+        );
 
-        return view('admin.menu.categories.index', compact('categories'));
+        return view('admin.menu.categories.index', $result + ['categories' => $result['items']]);
     }
 
     public function create()

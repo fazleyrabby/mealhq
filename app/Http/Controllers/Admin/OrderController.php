@@ -4,20 +4,31 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $orders = Order::with('customer', 'user')->latest()->paginate(20);
+        $result = $listing->process(
+            Order::with('customer'),
+            ['order_number'],
+            [
+                'status' => ['pending', 'confirmed', 'preparing', 'ready', 'served', 'completed', 'cancelled'],
+                'source' => ['web', 'pos', 'kiosk', 'phone'],
+                'type' => ['dine_in', 'takeaway', 'delivery'],
+            ],
+            'created_at',
+            'desc'
+        );
 
-        return view('admin.orders.index', compact('orders'));
+        return view('admin.orders.index', $result + ['orders' => $result['items']]);
     }
 
     public function show(Order $order)
     {
-        $order->load('items.modifiers', 'customer', 'user');
+        $order->load(['items.modifiers', 'items.menuItem', 'customer', 'user']);
 
         return view('admin.orders.show', compact('order'));
     }

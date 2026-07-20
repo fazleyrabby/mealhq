@@ -10,20 +10,27 @@ beforeEach(function () {
     $this->seed(RolePermissionSeeder::class);
 });
 
+test('admin login page loads', function () {
+    $response = $this->get('/admin/login');
+
+    $response->assertStatus(200);
+    $response->assertSee('Sign in');
+});
+
 test('admin dashboard loads for authenticated user', function () {
     $user = User::factory()->create();
     $user->assignRole('Owner');
 
-    $response = $this->actingAs($user)->get('/admin');
+    $response = $this->actingAs($user)->get('/admin/dashboard');
 
     $response->assertStatus(200);
     $response->assertSee('Dashboard');
 });
 
-test('admin dashboard redirects guest users', function () {
-    $response = $this->get('/admin');
+test('admin dashboard redirects guest users to admin login', function () {
+    $response = $this->get('/admin/dashboard');
 
-    $response->assertRedirect('/login');
+    $response->assertRedirect('/admin/login');
 });
 
 test('admin settings page loads', function () {
@@ -64,4 +71,13 @@ test('admin orders index loads', function () {
 
     $response->assertStatus(200);
     $response->assertSee('Orders');
+});
+
+test('admin redirects to dashboard', function () {
+    $user = User::factory()->create();
+    $user->assignRole('Owner');
+
+    $response = $this->actingAs($user)->get('/admin');
+
+    $response->assertRedirect('/admin/dashboard');
 });

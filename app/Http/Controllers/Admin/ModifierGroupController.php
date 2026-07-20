@@ -4,15 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ModifierGroup;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class ModifierGroupController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $groups = ModifierGroup::with('items')->orderBy('sort_order')->paginate(20);
+        $result = $listing->process(
+            ModifierGroup::with('items'),
+            ['name'],
+            ['is_active' => ['1', '0']],
+            'name',
+            'asc'
+        );
 
-        return view('admin.menu.modifiers.index', compact('groups'));
+        return view('admin.menu.modifiers.index', $result + ['groups' => $result['items']]);
     }
 
     public function create()
@@ -24,10 +31,9 @@ class ModifierGroupController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'type' => 'required|in:select_one,select_multiple,required_one,required_multiple',
-            'max_selections' => 'nullable|integer|min:1',
-            'min_selections' => 'nullable|integer|min:0',
-            'sort_order' => 'integer|min:0',
+            'type' => 'required|in:single,multiple',
+            'min_selection' => 'integer|min:0',
+            'max_selection' => 'integer|min:1',
             'is_active' => 'boolean',
         ]);
 
@@ -38,6 +44,8 @@ class ModifierGroupController extends Controller
 
     public function edit(ModifierGroup $modifierGroup)
     {
+        $modifierGroup->load('items');
+
         return view('admin.menu.modifiers.form', ['group' => $modifierGroup]);
     }
 
@@ -45,10 +53,9 @@ class ModifierGroupController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'type' => 'required|in:select_one,select_multiple,required_one,required_multiple',
-            'max_selections' => 'nullable|integer|min:1',
-            'min_selections' => 'nullable|integer|min:0',
-            'sort_order' => 'integer|min:0',
+            'type' => 'required|in:single,multiple',
+            'min_selection' => 'integer|min:0',
+            'max_selection' => 'integer|min:1',
             'is_active' => 'boolean',
         ]);
 
@@ -68,14 +75,12 @@ class ModifierGroupController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'price_adjustment' => 'required|numeric',
-            'cost_price' => 'nullable|numeric|min:0',
-            'sort_order' => 'integer|min:0',
+            'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
         ]);
 
         $modifierGroup->items()->create($validated);
 
-        return redirect()->route('admin.menu.modifiers.edit', $modifierGroup)->with('success', 'Modifier item added.');
+        return back()->with('success', 'Modifier item added.');
     }
 }

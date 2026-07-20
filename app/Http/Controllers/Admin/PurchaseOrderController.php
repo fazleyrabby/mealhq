@@ -5,23 +5,29 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ingredient;
 use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class PurchaseOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $orders = PurchaseOrder::with('supplier', 'createdBy')->withTrashed()->latest()->paginate(20);
+        $result = $listing->process(
+            PurchaseOrder::with('supplier', 'items'),
+            ['order_number'],
+            ['status' => ['draft', 'ordered', 'partial', 'received', 'cancelled']],
+            'created_at',
+            'desc'
+        );
 
-        return view('admin.inventory.purchase-orders.index', compact('orders'));
+        return view('admin.inventory.purchase-orders.index', $result + ['orders' => $result['items']]);
     }
 
     public function create()
     {
-        $suppliers = Supplier::active()->get();
-        $ingredients = Ingredient::active()->with('unit')->get();
+        $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
+        $ingredients = Ingredient::where('is_active', true)->with('unit')->orderBy('name')->get();
 
         return view('admin.inventory.purchase-orders.form', ['po' => null, 'suppliers' => $suppliers, 'ingredients' => $ingredients]);
     }
@@ -29,58 +35,82 @@ class PurchaseOrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'order_number' => 'required|string|max:30|unique:purchase_orders,order_number',
             'supplier_id' => 'required|exists:suppliers,id',
-            'order_date' => 'nullable|date',
-            'expected_delivery' => 'nullable|date',
+            'order_number' => 'nullable|string|max:50|unique:purchase_orders,order_number',
             'notes' => 'nullable|string',
-            'items' => 'nullable|array',
-            'items.*.ingredient_id' => 'required|exists:ingredients,id',
-            'items.*.quantity' => 'required|numeric|min:0',
-            'items.*.unit_cost' => 'required|numeric|min:0',
         ]);
 
-        $po = PurchaseOrder::create([
-            'order_number' => $validated['order_number'],
-            'supplier_id' => $validated['supplier_id'],
-            'order_date' => $validated['order_date'],
-            'expected_delivery' => $validated['expected_delivery'],
-            'notes' => $validated['notes'] ?? null,
-            'created_by' => auth()->id(),
-        ]);
+        $po = PurchaseOrder::create($validated + ['status' => 'draft']);
 
-        if (! empty($validated['items'])) {
-            foreach ($validated['items'] as $item) {
-                PurchaseOrderItem::create([
-                    'purchase_order_id' => $po->id,
-                    'ingredient_id' => $item['ingredient_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_cost' => $item['unit_cost'],
-                    'total_cost' => $item['quantity'] * $item['unit_cost'],
-                ]);
+        // Save items
+        if ($request->has('items')) {
+            foreach ($request->items as $item) {
+                if (! empty($item['ingredient_id']) && ! empty($item['quantity'])) {
+                    $po->items()->create([
+                        'ingredient_id' => $item['ingredient_id'],
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'] ?? 0,
+                        'received_quantity' => $item['received_quantity'] ?? 0,
+                    ]);
+                }
             }
         }
 
-        return redirect()->route('admin.inventory.purchase-orders.index')->with('success', 'Purchase order created.');
+        // Auto-place order
+        $po->update(['status' => 'ordered', 'ordered_at' => now()]);
+
+        return redirect()->route('admin.inventory.purchase-orders.index')->with('success', 'Purchase order created and placed.');
     }
 
     public function show(PurchaseOrder $purchaseOrder)
     {
-        $purchaseOrder->load('items.ingredient', 'supplier', 'createdBy');
+        $purchaseOrder->load('supplier', 'items.ingredient.unit');
 
         return view('admin.inventory.purchase-orders.show', ['po' => $purchaseOrder]);
     }
 
-    public function receive(Request $request, PurchaseOrder $purchaseOrder)
+    public function edit(PurchaseOrder $purchaseOrder)
+    {
+        $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
+        $ingredients = Ingredient::where('is_active', true)->with('unit')->orderBy('name')->get();
+        $purchaseOrder->load('items');
+
+        return view('admin.inventory.purchase-orders.form', ['po' => $purchaseOrder, 'suppliers' => $suppliers, 'ingredients' => $ingredients]);
+    }
+
+    public function update(Request $request, PurchaseOrder $purchaseOrder)
     {
         $validated = $request->validate([
-            'received' => 'required|array',
-            'received.*' => 'required|numeric|min:0',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'order_number' => 'nullable|string|max:50|unique:purchase_orders,order_number,'.$purchaseOrder->id,
+            'notes' => 'nullable|string',
         ]);
 
-        $purchaseOrder->receiveItems($validated['received']);
+        $purchaseOrder->update($validated);
 
-        return redirect()->route('admin.inventory.purchase-orders.show', $purchaseOrder)->with('success', 'Items received.');
+        // Sync items
+        $purchaseOrder->items()->delete();
+        if ($request->has('items')) {
+            foreach ($request->items as $item) {
+                if (! empty($item['ingredient_id']) && ! empty($item['quantity'])) {
+                    $purchaseOrder->items()->create([
+                        'ingredient_id' => $item['ingredient_id'],
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'] ?? 0,
+                        'received_quantity' => $item['received_quantity'] ?? 0,
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('admin.inventory.purchase-orders.index')->with('success', 'Purchase order updated.');
+    }
+
+    public function receive(PurchaseOrder $purchaseOrder)
+    {
+        $purchaseOrder->receiveItems();
+
+        return back()->with('success', 'Items received successfully.');
     }
 
     public function destroy(PurchaseOrder $purchaseOrder)

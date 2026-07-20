@@ -10,9 +10,40 @@
             <a href="{{ route('admin.menu.items.create') }}" class="btn btn-primary">Add Item</a>
         </div>
     </div>
+
+    <div class="card-body border-bottom py-3">
+        <x-admin.listing-toolbar
+            :search="$search ?? ''"
+            search-placeholder="Search menu items..."
+            :per-page="$perPage ?? 20"
+            :filters="[
+                ['field' => 'is_active', 'label' => 'Status', 'options' => ['1' => 'Active', '0' => 'Inactive']],
+                ['field' => 'channel_visibility', 'label' => 'Channel', 'options' => ['both' => 'Both', 'web' => 'Web', 'pos' => 'POS']],
+            ]"
+            :applied-filters="$appliedFilters ?? []"
+        />
+    </div>
+
     <div class="table-responsive">
         <table class="table table-vcenter card-table">
-            <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Channel</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>
+                        <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['sort', 'direction']), ['sort' => 'name', 'direction' => ($sortField ?? 'name') === 'name' && ($sortDir ?? 'asc') === 'asc' ? 'desc' : 'asc'])) }}">
+                            Name {!! ($sortField ?? 'name') === 'name' ? '<span class="text-muted">' . (($sortDir ?? 'asc') === 'asc' ? '↑' : '↓') . '</span>' : '' !!}
+                        </a>
+                    </th>
+                    <th>Category</th>
+                    <th>
+                        <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except(['sort', 'direction']), ['sort' => 'base_price', 'direction' => ($sortField ?? 'name') === 'base_price' && ($sortDir ?? 'asc') === 'asc' ? 'desc' : 'asc'])) }}">
+                            Price {!! ($sortField ?? 'name') === 'base_price' ? '<span class="text-muted">' . (($sortDir ?? 'asc') === 'asc' ? '↑' : '↓') . '</span>' : '' !!}
+                        </a>
+                    </th>
+                    <th>Channel</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
             <tbody>
                 @forelse($items as $item)
                 <tr>
@@ -36,6 +67,11 @@
             </tbody>
         </table>
     </div>
-    @if($items->hasPages())<div class="card-footer">{{ $items->links() }}</div>@endif
+    @if($items->hasPages())
+    <div class="card-footer d-flex align-items-center">
+        <p class="m-0 text-secondary">Showing {{ $items->firstItem() }}–{{ $items->lastItem() }} of {{ $items->total() }} results</p>
+        <div class="ms-auto">{{ $items->links() }}</div>
+    </div>
+    @endif
 </div>
 @endsection

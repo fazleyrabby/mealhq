@@ -4,15 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Supplier;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $suppliers = Supplier::withTrashed()->latest()->paginate(20);
+        $result = $listing->process(
+            Supplier::query(),
+            ['name', 'contact_name', 'email'],
+            ['is_active' => ['1', '0']],
+            'name',
+            'asc'
+        );
 
-        return view('admin.inventory.suppliers.index', compact('suppliers'));
+        return view('admin.inventory.suppliers.index', $result + ['suppliers' => $result['items']]);
     }
 
     public function create()
@@ -23,10 +30,10 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'contact_person' => 'nullable|string|max:100',
-            'email' => 'nullable|email|max:150',
-            'phone' => 'nullable|string|max:30',
+            'name' => 'required|string|max:200',
+            'contact_name' => 'nullable|string|max:150',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
@@ -44,10 +51,10 @@ class SupplierController extends Controller
     public function update(Request $request, Supplier $supplier)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'contact_person' => 'nullable|string|max:100',
-            'email' => 'nullable|email|max:150',
-            'phone' => 'nullable|string|max:30',
+            'name' => 'required|string|max:200',
+            'contact_name' => 'nullable|string|max:150',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string',
             'is_active' => 'boolean',
         ]);

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CmsFaqController;
 use App\Http\Controllers\Admin\CmsPageController;
 use App\Http\Controllers\Admin\CmsPromotionController;
+use App\Http\Controllers\Admin\ContactInquiryController as AdminContactInquiryController;
 use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\KdsStationController;
 use App\Http\Controllers\Admin\MenuItemController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Admin\RestaurantTableController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StockAdjustmentController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -25,46 +27,61 @@ use App\Http\Controllers\ContactInquiryController;
 use App\Http\Controllers\PublicWebsiteController;
 use Illuminate\Support\Facades\Route;
 
-// Public website routes
+/*
+|--------------------------------------------------------------------------
+| Public Website
+|--------------------------------------------------------------------------
+*/
 Route::get('/', [PublicWebsiteController::class, 'home'])->name('home');
 Route::get('/menu', [PublicWebsiteController::class, 'menu'])->name('public.menu');
 Route::get('/about', [PublicWebsiteController::class, 'about'])->name('public.about');
 Route::get('/contact', [PublicWebsiteController::class, 'contact'])->name('public.contact');
 Route::post('/contact', [ContactInquiryController::class, 'store'])->name('public.contact.store');
 
-// Guest routes (unauthenticated)
+/*
+|--------------------------------------------------------------------------
+| Customer Auth (web guard)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('guest')->group(function () {
-    // Demo Login
-    Route::get('/demo-login/{role}', [LoginController::class, 'demo'])
-        ->whereIn('role', ['admin', 'customer'])
-        ->name('demo.login');
-
-    // Login
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
-
-    // Register
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
-
-    // Password Reset
     Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'store'])->name('password.update');
 });
 
-// Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
-
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+});
 
-    // Admin Panel
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| Admin Panel (admin guard)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    // Admin Guest (not logged in)
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
+        Route::post('/login', [AdminLoginController::class, 'store']);
+        Route::get('/demo-login/{role}', [LoginController::class, 'demo'])
+            ->whereIn('role', ['admin', 'customer'])
+            ->name('demo.login');
+    });
+
+    // Admin Authenticated
+    Route::middleware('auth')->group(function () {
+        Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/', fn () => redirect()->route('admin.dashboard'));
 
         // Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
@@ -85,16 +102,14 @@ Route::middleware('auth')->group(function () {
             ->names('cms.faqs')->parameters(['faq' => 'faq']);
 
         // CMS Contact Inquiries
-        Route::get('cms/inquiries', [App\Http\Controllers\Admin\ContactInquiryController::class, 'index'])->name('cms.inquiries.index');
-        Route::get('cms/inquiries/{inquiry}', [App\Http\Controllers\Admin\ContactInquiryController::class, 'show'])->name('cms.inquiries.show');
-        Route::post('cms/inquiries/{inquiry}/read', [App\Http\Controllers\Admin\ContactInquiryController::class, 'markRead'])->name('cms.inquiries.read');
-        Route::post('cms/inquiries/{inquiry}/replied', [App\Http\Controllers\Admin\ContactInquiryController::class, 'markReplied'])->name('cms.inquiries.replied');
-        Route::delete('cms/inquiries/{inquiry}', [App\Http\Controllers\Admin\ContactInquiryController::class, 'destroy'])->name('cms.inquiries.destroy');
+        Route::get('cms/inquiries', [AdminContactInquiryController::class, 'index'])->name('cms.inquiries.index');
+        Route::get('cms/inquiries/{inquiry}', [AdminContactInquiryController::class, 'show'])->name('cms.inquiries.show');
+        Route::post('cms/inquiries/{inquiry}/read', [AdminContactInquiryController::class, 'markRead'])->name('cms.inquiries.read');
+        Route::post('cms/inquiries/{inquiry}/replied', [AdminContactInquiryController::class, 'markReplied'])->name('cms.inquiries.replied');
+        Route::delete('cms/inquiries/{inquiry}', [AdminContactInquiryController::class, 'destroy'])->name('cms.inquiries.destroy');
 
-        // Gallery (placeholder route)
-        Route::get('cms/gallery', function () {
-            return view('admin.cms.gallery.index');
-        })->name('cms.gallery.index');
+        // Gallery
+        Route::get('cms/gallery', fn () => view('admin.cms.gallery.index'))->name('cms.gallery.index');
 
         // Menu Categories
         Route::resource('menu/categories', CategoryController::class)
@@ -112,25 +127,25 @@ Route::middleware('auth')->group(function () {
         Route::post('menu/modifiers/{modifierGroup}/items', [ModifierGroupController::class, 'storeItem'])
             ->name('menu.modifiers.items.store');
 
-        // Inventory Ingredients
+        // Inventory - Ingredients
         Route::resource('inventory/ingredients', IngredientController::class)
             ->names('inventory.ingredients')->parameters(['ingredient' => 'ingredient']);
 
-        // Inventory Recipes
+        // Inventory - Recipes
         Route::resource('inventory/recipes', RecipeController::class)
             ->names('inventory.recipes')->parameters(['recipe' => 'recipe']);
 
-        // Inventory Suppliers
+        // Inventory - Suppliers
         Route::resource('inventory/suppliers', SupplierController::class)
             ->names('inventory.suppliers')->parameters(['supplier' => 'supplier']);
 
-        // Inventory Purchase Orders
+        // Inventory - Purchase Orders
         Route::resource('inventory/purchase-orders', PurchaseOrderController::class)
             ->names('inventory.purchase-orders')->parameters(['purchaseOrder' => 'purchase_order']);
         Route::post('inventory/purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive'])
             ->name('inventory.purchase-orders.receive');
 
-        // Inventory Stock Adjustments
+        // Inventory - Stock Adjustments
         Route::get('inventory/adjustments', [StockAdjustmentController::class, 'index'])->name('inventory.adjustments.index');
         Route::get('inventory/adjustments/create', [StockAdjustmentController::class, 'create'])->name('inventory.adjustments.create');
         Route::post('inventory/adjustments', [StockAdjustmentController::class, 'store'])->name('inventory.adjustments.store');

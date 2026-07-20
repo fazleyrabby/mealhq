@@ -4,38 +4,53 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PosDrawer;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class PosDrawerController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $drawers = PosDrawer::with('openedBy')->latest()->paginate(20);
+        $result = $listing->process(
+            PosDrawer::with('user'),
+            [],
+            ['is_open' => ['1', '0']],
+            'created_at',
+            'desc'
+        );
 
-        return view('admin.operations.drawers.index', compact('drawers'));
+        return view('admin.operations.drawers.index', $result + ['drawers' => $result['items']]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
             'opening_balance' => 'required|numeric|min:0',
+            'notes' => 'nullable|string|max:255',
         ]);
 
-        $drawer = PosDrawer::create(['name' => $validated['name']]);
-        $drawer->open($validated['opening_balance'], auth()->id());
+        PosDrawer::create([
+            'user_id' => auth()->id(),
+            'opening_balance' => $validated['opening_balance'],
+            'notes' => $validated['notes'] ?? null,
+            'opened_at' => now(),
+            'is_open' => true,
+        ]);
 
         return redirect()->route('admin.operations.drawers.index')->with('success', 'Drawer opened.');
     }
 
-    public function close(Request $request, PosDrawer $posDrawer)
+    public function close(PosDrawer $posDrawer)
     {
-        $validated = $request->validate([
-            'closing_balance' => 'required|numeric|min:0',
+        if (! $posDrawer->is_open) {
+            return back()->with('error', 'Drawer is already closed.');
+        }
+
+        $posDrawer->update([
+            'is_open' => false,
+            'closed_at' => now(),
         ]);
 
-        $posDrawer->close($validated['closing_balance'], auth()->id());
-
-        return redirect()->route('admin.operations.drawers.index')->with('success', 'Drawer closed.');
+        return back()->with('success', 'Drawer closed.');
     }
 }

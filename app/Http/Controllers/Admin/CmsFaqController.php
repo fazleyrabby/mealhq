@@ -4,15 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CmsFaq;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class CmsFaqController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $faqs = CmsFaq::orderBy('category')->orderBy('sort_order')->paginate(30);
+        $result = $listing->process(
+            CmsFaq::query(),
+            ['question', 'answer'],
+            ['is_active' => ['1', '0']],
+            'sort_order',
+            'asc'
+        );
 
-        return view('admin.cms.faqs.index', compact('faqs'));
+        return view('admin.cms.faqs.index', $result + ['faqs' => $result['items']]);
     }
 
     public function create()
@@ -23,8 +30,7 @@ class CmsFaqController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'category' => 'required|string|max:50',
-            'question' => 'required|string|max:255',
+            'question' => 'required|string|max:500',
             'answer' => 'required|string',
             'sort_order' => 'integer|min:0',
             'is_active' => 'boolean',
@@ -43,8 +49,7 @@ class CmsFaqController extends Controller
     public function update(Request $request, CmsFaq $faq)
     {
         $validated = $request->validate([
-            'category' => 'required|string|max:50',
-            'question' => 'required|string|max:255',
+            'question' => 'required|string|max:500',
             'answer' => 'required|string',
             'sort_order' => 'integer|min:0',
             'is_active' => 'boolean',

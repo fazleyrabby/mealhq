@@ -5,20 +5,27 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ingredient;
 use App\Models\Unit;
+use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 
 class IngredientController extends Controller
 {
-    public function index()
+    public function index(Request $request, AdminListingService $listing)
     {
-        $ingredients = Ingredient::with('unit')->withTrashed()->latest()->paginate(20);
+        $result = $listing->process(
+            Ingredient::with('unit'),
+            ['name'],
+            ['is_active' => ['1', '0']],
+            'name',
+            'asc'
+        );
 
-        return view('admin.inventory.ingredients.index', compact('ingredients'));
+        return view('admin.inventory.ingredients.index', $result + ['ingredients' => $result['items']]);
     }
 
     public function create()
     {
-        $units = Unit::all();
+        $units = Unit::orderBy('name')->get();
 
         return view('admin.inventory.ingredients.form', ['ingredient' => null, 'units' => $units]);
     }
@@ -26,14 +33,11 @@ class IngredientController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'sku' => 'nullable|string|max:50|unique:ingredients,sku',
+            'name' => 'required|string|max:150',
             'unit_id' => 'required|exists:units,id',
-            'cost_per_unit' => 'required|numeric|min:0',
             'stock_quantity' => 'required|numeric|min:0',
-            'min_stock_level' => 'required|numeric|min:0',
-            'category' => 'nullable|string|max:50',
-            'description' => 'nullable|string',
+            'cost_per_unit' => 'required|numeric|min:0',
+            'low_stock_threshold' => 'nullable|numeric|min:0',
             'is_active' => 'boolean',
         ]);
 
@@ -44,7 +48,7 @@ class IngredientController extends Controller
 
     public function edit(Ingredient $ingredient)
     {
-        $units = Unit::all();
+        $units = Unit::orderBy('name')->get();
 
         return view('admin.inventory.ingredients.form', compact('ingredient', 'units'));
     }
@@ -52,14 +56,11 @@ class IngredientController extends Controller
     public function update(Request $request, Ingredient $ingredient)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'sku' => 'nullable|string|max:50|unique:ingredients,sku,'.$ingredient->id,
+            'name' => 'required|string|max:150',
             'unit_id' => 'required|exists:units,id',
-            'cost_per_unit' => 'required|numeric|min:0',
             'stock_quantity' => 'required|numeric|min:0',
-            'min_stock_level' => 'required|numeric|min:0',
-            'category' => 'nullable|string|max:50',
-            'description' => 'nullable|string',
+            'cost_per_unit' => 'required|numeric|min:0',
+            'low_stock_threshold' => 'nullable|numeric|min:0',
             'is_active' => 'boolean',
         ]);
 
