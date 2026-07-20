@@ -79,11 +79,41 @@
 
     {{-- ======================== CENTER: PRODUCTS ======================== --}}
     <main class="pos-products">
-        <div class="px-3 py-2 border-bottom border-light d-flex align-items-center gap-2 bg-white">
-            <div class="position-relative flex-fill">
-                <svg class="position-absolute top-50 translate-middle-y ms-2" width="16" height="16" fill="none" stroke="#adb5bd" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                <input type="text" class="search-input ps-4" placeholder="Search products... (F2)" x-model="searchQuery" @input.debounce.300ms="filterProducts()" id="pos-search">
+        <div class="px-3 py-2 border-bottom border-light bg-white">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="position-relative flex-fill">
+                    <svg class="position-absolute top-50 translate-middle-y ms-2" width="16" height="16" fill="none" stroke="#adb5bd" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" class="search-input ps-4" placeholder="Search products... (F2)" x-model="searchQuery" @input.debounce.300ms="filterProducts()" id="pos-search">
+                </div>
+                <template x-if="editingOrder">
+                    <span class="badge bg-warning text-dark" style="font-size:.75rem;white-space:nowrap">Editing #<span x-text="editingOrder.order_number"></span></span>
+                </template>
+                <button class="btn btn-sm" :class="showOrders ? 'btn-primary' : 'btn-outline-secondary'" @click="showOrders = !showOrders" title="Today's Orders">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+                    <span x-show="todayOrders.length" class="badge bg-danger ms-1" x-text="todayOrders.length"></span>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" @click="newOrder" title="New Order">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
             </div>
+            {{-- Today's Orders Panel --}}
+            <template x-if="showOrders">
+                <div class="border rounded p-2" style="max-height:10rem;overflow-y:auto;background:#f8f9fa">
+                    <template x-if="!todayOrders.length">
+                        <div class="text-muted small py-2 text-center">No orders today</div>
+                    </template>
+                    <template x-for="o in todayOrders" :key="o.id">
+                        <div class="d-flex align-items-center gap-2 px-2 py-1 rounded cursor-pointer" style="cursor:pointer" :class="{ 'bg-primary text-white': editingOrder?.id == o.id, 'bg-light': editingOrder?.id != o.id }" @click="editOrder(o); showOrders = false">
+                            <span class="small fw-semibold" x-text="'#' + o.order_number"></span>
+                            <span class="small" x-text="o.type?.replace('_', ' ')"></span>
+                            <span x-show="o.customer" class="small text-truncate" x-text="o.customer?.name"></span>
+                            <span class="badge bg-secondary ms-auto small" x-text="o.status"></span>
+                            <span class="small fw-semibold" x-text="'$' + Number(o.total_amount).toFixed(2)"></span>
+                            <span class="small text-muted" x-text="o.items?.length + ' items'"></span>
+                        </div>
+                    </template>
+                </div>
+            </template>
         </div>
         <div class="flex-fill pos-scroll" id="products-container">
             <div class="product-grid">
@@ -371,11 +401,14 @@ function posApp() {
         tableMap: {{ Js::from($tables->toArray()) }},
         taxRates: {{ Js::from([['rate' => $taxRate?->rate ?? 0]]) }},
         serviceChargeRate: {{ $serviceChargeRate }},
+        todayOrders: {{ Js::from($todayOrders->toArray()) }},
 
         activeCategory: null,
         categorySearch: '',
         searchQuery: '',
         products: [],
+        showOrders: false,
+        editingOrder: null,
 
         cart: [],
         orderType: 'dine_in',
@@ -434,12 +467,14 @@ function posApp() {
 
         init() {
             this.filterProducts();
-            // Remove container constraints for full-width POS
             document.querySelector('.page-body')?.classList.add('p-0');
             document.querySelector('.container-xl')?.classList.add('p-0', 'mw-100');
             const header = document.querySelector('.page-header');
             if (header) header.style.display = 'none';
-            // Keyboard shortcuts
+            // Auto-load the most recent open order
+            if (this.todayOrders.length && !this.cart.length) {
+                this.editOrder(this.todayOrders[0]);
+            }
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'F2') { e.preventDefault(); document.getElementById('pos-search')?.focus(); }
                 if (e.key === 'F4') { e.preventDefault(); this.showTablePicker = !this.showTablePicker; }
@@ -549,11 +584,50 @@ function posApp() {
 
         openPaymentModal() { this.paymentMethod = 'Cash'; this.amountReceived = this.grandTotal; this.showPaymentModal = true; },
 
+        editOrder(order) {
+            if (!order || !order.items?.length) { this.newOrder(); return; }
+            this.editingOrder = order;
+            this.orderType = order.type || 'dine_in';
+            this.selectedCustomer = order.customer ? { id: order.customer.id, name: order.customer.name, email: order.customer.email, phone: order.customer.phone } : null;
+            this.selectedTable = order.table_session?.restaurant_table ? { id: order.table_session.restaurant_table.id, table_number: order.table_session.restaurant_table.table_number } : null;
+            this.discountAmount = Number(order.discount_amount || 0);
+            this.cart = order.items.map(i => ({
+                menu_item_id: i.menu_item_id,
+                menu_item_variant_id: i.menu_item_variant_id,
+                item_name: i.item_name,
+                variant_name: i.variant_name,
+                unit_price: Number(i.unit_price),
+                qty: i.quantity,
+                modifiers: (i.modifiers || []).map(m => ({
+                    group_name: m.modifier_group_name,
+                    item_name: m.modifier_item_name,
+                    price_adjustment: Number(m.price_adjustment),
+                })),
+                special_instructions: i.special_instructions || '',
+                image_url: null,
+            }));
+            this.filterProducts();
+        },
+
+        newOrder() {
+            this.editingOrder = null;
+            this.cart = [];
+            this.selectedTable = null;
+            this.selectedCustomer = null;
+            this.discountAmount = 0;
+            this.filterProducts();
+        },
+
         submitOrder() {
             if (this.submitting || !this.cart.length) return;
             this.submitting = true;
-            fetch('/admin/pos/order', {
-                method: 'POST',
+
+            const isUpdate = this.editingOrder && this.editingOrder.id;
+            const url = isUpdate ? '/admin/pos/order/' + this.editingOrder.id : '/admin/pos/order';
+            const method = isUpdate ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
                 body: JSON.stringify({
                     items: this.cart.map(i => ({
@@ -564,7 +638,7 @@ function posApp() {
                     })),
                     customer_id: this.selectedCustomer?.id || null,
                     table_session_id: this.selectedTable?.id || null,
-                    type: this.orderType, source: 'pos', notes: '',
+                    type: this.orderType, notes: '',
                     discount_amount: this.discountAmount,
                 }),
             })
@@ -572,6 +646,9 @@ function posApp() {
             .then(data => {
                 if (data.success) {
                     this.successMessage = data.message; this.showSuccess = true;
+                    // Reload today's orders and load the updated order
+                    this.fetchTodayOrders();
+                    this.editingOrder = null;
                     this.cart = []; this.selectedTable = null; this.selectedCustomer = null;
                     this.discountAmount = 0; this.showPaymentModal = false;
                     this.filterProducts();
@@ -580,6 +657,13 @@ function posApp() {
             })
             .catch(err => { console.error(err); alert('Error placing order'); })
             .finally(() => { this.submitting = false; });
+        },
+
+        fetchTodayOrders() {
+            fetch('/admin/pos/today')
+                .then(r => r.json())
+                .then(data => { this.todayOrders = data; })
+                .catch(() => {});
         },
     };
 }

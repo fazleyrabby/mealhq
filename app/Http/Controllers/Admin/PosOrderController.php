@@ -47,6 +47,15 @@ class PosOrderController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'slug', 'description', 'image_url', 'base_price', 'category_id', 'is_featured', 'is_active', 'prep_time_minutes']);
 
+        // Today's POS orders for the current cashier
+        $todayOrders = Order::with(['items.modifiers', 'customer', 'tableSession.restaurantTable'])
+            ->whereDate('created_at', today())
+            ->where('user_id', auth()->id())
+            ->whereIn('source', ['pos', 'walk_in'])
+            ->whereIn('status', ['pending', 'confirmed', 'preparing'])
+            ->orderByDesc('updated_at')
+            ->get();
+
         return view('admin.pos.index', compact(
             'categories',
             'products',
@@ -54,7 +63,8 @@ class PosOrderController extends Controller
             'modifierGroups',
             'taxRate',
             'serviceChargeRate',
-            'allItems'
+            'allItems',
+            'todayOrders'
         ));
     }
 
@@ -138,9 +148,86 @@ class PosOrderController extends Controller
             'ordered_at' => now(),
         ]);
 
-        $subtotal = 0;
+        $this->syncOrderItems($order, $validated['items']);
+        $order->recalculateTotals();
 
-        foreach ($validated['items'] as $itemData) {
+        return response()->json([
+            'success' => true,
+            'order' => $order->fresh()->load('items.modifiers'),
+            'message' => __('Order #:number created.', ['number' => $order->order_number]),
+        ]);
+    }
+
+    public function update(Request $request, Order $order): JsonResponse
+    {
+        if (! in_array($order->status, ['pending', 'confirmed', 'preparing'])) {
+            return response()->json(['success' => false, 'message' => 'Cannot edit a completed or cancelled order.'], 422);
+        }
+
+        $validated = $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.menu_item_id' => 'required|exists:menu_items,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.item_name' => 'required|string|max:150',
+            'items.*.variant_name' => 'nullable|string|max:100',
+            'items.*.menu_item_variant_id' => 'nullable|exists:menu_item_variants,id',
+            'items.*.special_instructions' => 'nullable|string|max:500',
+            'items.*.modifiers' => 'nullable|array',
+            'items.*.modifiers.*.group_name' => 'required|string',
+            'items.*.modifiers.*.item_name' => 'required|string',
+            'items.*.modifiers.*.price_adjustment' => 'required|numeric',
+            'customer_id' => 'nullable|exists:customers,id',
+            'table_session_id' => 'nullable|integer',
+            'type' => 'sometimes|in:dine_in,takeaway,delivery',
+            'notes' => 'nullable|string|max:1000',
+            'discount_amount' => 'nullable|numeric|min:0',
+        ]);
+
+        $order->update([
+            'customer_id' => $validated['customer_id'] ?? $order->customer_id,
+            'table_session_id' => $validated['table_session_id'] ?? $order->table_session_id,
+            'type' => $validated['type'] ?? $order->type,
+            'notes' => $validated['notes'] ?? $order->notes,
+            'discount_amount' => $validated['discount_amount'] ?? $order->discount_amount,
+        ]);
+
+        // Remove existing items and replace
+        $order->items()->each(function (OrderItem $item) {
+            $item->modifiers()->delete();
+            $item->delete();
+        });
+
+        $this->syncOrderItems($order, $validated['items']);
+        $order->recalculateTotals();
+
+        return response()->json([
+            'success' => true,
+            'order' => $order->fresh()->load('items.modifiers'),
+            'message' => __('Order #:number updated.', ['number' => $order->order_number]),
+        ]);
+    }
+
+    public function show(Order $order): JsonResponse
+    {
+        return response()->json($order->load('items.modifiers', 'customer', 'tableSession.restaurantTable'));
+    }
+
+    public function todayOrders(): JsonResponse
+    {
+        $orders = Order::with(['items', 'customer', 'tableSession.restaurantTable'])
+            ->whereDate('created_at', today())
+            ->where('user_id', auth()->id())
+            ->whereIn('source', ['pos', 'walk_in'])
+            ->orderByDesc('updated_at')
+            ->get();
+
+        return response()->json($orders);
+    }
+
+    private function syncOrderItems(Order $order, array $items): void
+    {
+        foreach ($items as $itemData) {
             $modifierTotal = 0;
             $modifierDetails = [];
 
@@ -152,7 +239,6 @@ class PosOrderController extends Controller
             }
 
             $itemSubtotal = ((float) $itemData['unit_price'] + $modifierTotal) * (int) $itemData['quantity'];
-            $subtotal += $itemSubtotal;
 
             $orderItem = OrderItem::create([
                 'order_id' => $order->id,
@@ -175,30 +261,5 @@ class PosOrderController extends Controller
                 ]);
             }
         }
-
-        $order->recalculateTotals();
-
-        return response()->json([
-            'success' => true,
-            'order' => $order->load('items.modifiers'),
-            'message' => __('Order #:number created successfully.', ['number' => $order->order_number]),
-        ]);
-    }
-
-    public function show(Order $order): JsonResponse
-    {
-        return response()->json($order->load('items.modifiers', 'customer', 'tableSession.restaurantTable'));
-    }
-
-    public function recentOrders(): JsonResponse
-    {
-        $orders = Order::with('items')
-            ->whereDate('created_at', today())
-            ->where('user_id', auth()->id())
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
-
-        return response()->json($orders);
     }
 }

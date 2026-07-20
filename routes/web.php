@@ -87,9 +87,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // POS
         Route::get('pos', [PosOrderController::class, 'index'])->name('pos.index');
         Route::post('pos/order', [PosOrderController::class, 'store'])->name('pos.store');
+        Route::put('pos/order/{order}', [PosOrderController::class, 'update'])->name('pos.update');
         Route::get('pos/order/{order}', [PosOrderController::class, 'show'])->name('pos.show');
         Route::get('pos/search', [PosOrderController::class, 'searchProducts'])->name('pos.search');
         Route::get('pos/customers', [PosOrderController::class, 'searchCustomers'])->name('pos.customers');
+        Route::get('pos/today', [PosOrderController::class, 'todayOrders'])->name('pos.today');
         Route::get('pos/recent', [PosOrderController::class, 'recentOrders'])->name('pos.recent');
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
