@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PosDrawer extends Model
 {
@@ -11,6 +12,11 @@ class PosDrawer extends Model
         'expected_balance', 'opened_by', 'closed_by',
         'opened_at', 'closed_at', 'notes',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'opened_by');
+    }
 
     protected function casts(): array
     {
