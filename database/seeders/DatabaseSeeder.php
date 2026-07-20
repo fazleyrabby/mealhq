@@ -14,8 +14,11 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // Roles & Permissions
+        // Roles & Permissions (includes demo users)
         $this->call(RolePermissionSeeder::class);
+
+        // Comprehensive demo data for all modules
+        $this->call(DemoDataSeeder::class);
 
         // Demo admin user (assign Owner role)
         $admin = User::firstOrCreate(
@@ -37,6 +40,8 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'is_active' => true,
                 'loyalty_points' => 500,
+                'total_orders' => 5,
+                'total_spent' => 185.50,
             ]
         );
     }
