@@ -43,6 +43,11 @@ class Order extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function tableSession(): BelongsTo
+    {
+        return $this->belongsTo(TableSession::class, 'table_session_id');
+    }
+
     public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);
