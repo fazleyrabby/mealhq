@@ -16,6 +16,8 @@ use App\Models\MenuItem;
 use App\Models\MenuItemVariant;
 use App\Models\ModifierGroup;
 use App\Models\ModifierItem;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\PosDrawer;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
@@ -37,7 +39,7 @@ class DemoDataSeeder extends Seeder
     {
         // ─── Settings ─────────────────────────────────────────────
         $settings = [
-            ['key' => 'company_name', 'value' => 'MealHQ Restaurant', 'group' => 'general'],
+            ['key' => 'company_name', 'value' => 'MealHQ', 'group' => 'general'],
             ['key' => 'company_email', 'value' => 'info@mealhq.test', 'group' => 'general'],
             ['key' => 'company_phone', 'value' => '+1 (555) 123-4567', 'group' => 'general'],
             ['key' => 'company_address', 'value' => '123 Main Street, New York, NY 10001', 'group' => 'general'],
@@ -118,8 +120,27 @@ class DemoDataSeeder extends Seeder
 
         $about = CmsPage::firstOrCreate(
             ['slug' => 'about'],
-            ['title' => 'About Us', 'content' => 'About MealHQ restaurant', 'is_active' => true, 'is_system' => true]
+            ['title' => 'About Us', 'is_active' => true, 'is_system' => true]
         );
+        $about->content = <<<HTML
+<h2>Our Story</h2>
+<p>Founded in 2024, MealHQ began with a simple idea: bring restaurant-quality food to your door without compromising on taste, freshness, or care. What started as a small neighborhood kitchen has grown into a beloved destination for those who appreciate honest cooking and warm hospitality.</p>
+<p>Every dish that leaves our kitchen is a reflection of our love for food and the community we serve. We work closely with local farmers and producers to source the freshest seasonal ingredients, and our chefs craft each plate by hand with attention to detail.</p>
+
+<h2>Our Mission</h2>
+<p>We believe great food has the power to bring people together. Our mission is to make exceptional dining accessible — whether you are joining us in the restaurant, ordering for delivery, or celebrating a special occasion. We are committed to quality, sustainability, and a genuinely welcoming experience for every guest.</p>
+
+<h2>What Sets Us Apart</h2>
+<ul>
+    <li><strong>Fresh, local ingredients</strong> sourced daily from trusted regional suppliers.</li>
+    <li><strong>Hand-crafted menus</strong> designed by our culinary team and refreshed with the seasons.</li>
+    <li><strong>A warm, welcoming space</strong> where every guest feels at home.</li>
+    <li><strong>Thoughtful service</strong> from a team that truly cares about your experience.</li>
+</ul>
+
+<blockquote>“From our kitchen to your table — crafted with care, served with love.”</blockquote>
+HTML;
+        $about->save();
         CmsSection::firstOrCreate(
             ['page_id' => $about->id, 'section_key' => 'story'],
             ['title' => 'Our Story', 'body_content' => 'Founded in 2024, MealHQ has been serving delicious meals to the community with passion and dedication.', 'sort_order' => 0, 'is_visible' => true]
@@ -200,32 +221,37 @@ class DemoDataSeeder extends Seeder
         // ─── Menu Items ───────────────────────────────────────────
         $items = [
             // Main Courses
-            ['name' => 'Grilled Ribeye Steak', 'slug' => 'grilled-ribeye-steak', 'category_id' => $mainCourse->id, 'base_price' => 34.99, 'description' => '12oz ribeye with herb butter and seasonal vegetables', 'is_active' => true, 'is_featured' => true],
-            ['name' => 'Pan-Seared Salmon', 'slug' => 'pan-seared-salmon', 'category_id' => $mainCourse->id, 'base_price' => 26.99, 'description' => 'Atlantic salmon with lemon dill sauce and rice pilaf', 'is_active' => true],
-            ['name' => 'Chicken Parmesan', 'slug' => 'chicken-parmesan', 'category_id' => $mainCourse->id, 'base_price' => 22.99, 'description' => 'Breaded chicken breast with marinara and mozzarella', 'is_active' => true],
-            ['name' => 'Vegetable Stir Fry', 'slug' => 'vegetable-stir-fry', 'category_id' => $mainCourse->id, 'base_price' => 18.99, 'description' => 'Fresh seasonal vegetables in a savory sauce', 'is_active' => true],
-            ['name' => 'Lamb Chops', 'slug' => 'lamb-chops', 'category_id' => $mainCourse->id, 'base_price' => 38.99, 'description' => 'Grilled lamb chops with mint sauce and roasted potatoes', 'is_active' => true, 'is_featured' => true],
+            ['name' => 'Grilled Ribeye Steak', 'slug' => 'grilled-ribeye-steak', 'category_id' => $mainCourse->id, 'base_price' => 34.99, 'description' => '12oz ribeye with herb butter and seasonal vegetables', 'is_active' => true, 'is_featured' => true, 'image_url' => '/storage/menu-items/grilled-ribeye-steak.jpg'],
+            ['name' => 'Pan-Seared Salmon', 'slug' => 'pan-seared-salmon', 'category_id' => $mainCourse->id, 'base_price' => 26.99, 'description' => 'Atlantic salmon with lemon dill sauce and rice pilaf', 'is_active' => true, 'image_url' => '/storage/menu-items/pan-seared-salmon.jpg'],
+            ['name' => 'Chicken Parmesan', 'slug' => 'chicken-parmesan', 'category_id' => $mainCourse->id, 'base_price' => 22.99, 'description' => 'Breaded chicken breast with marinara and mozzarella', 'is_active' => true, 'image_url' => '/storage/menu-items/chicken-parmesan.jpg'],
+            ['name' => 'Vegetable Stir Fry', 'slug' => 'vegetable-stir-fry', 'category_id' => $mainCourse->id, 'base_price' => 18.99, 'description' => 'Fresh seasonal vegetables in a savory sauce', 'is_active' => true, 'image_url' => '/storage/menu-items/vegetable-stir-fry.jpg'],
+            ['name' => 'Lamb Chops', 'slug' => 'lamb-chops', 'category_id' => $mainCourse->id, 'base_price' => 38.99, 'description' => 'Grilled lamb chops with mint sauce and roasted potatoes', 'is_active' => true, 'is_featured' => true, 'image_url' => '/storage/menu-items/lamb-chops.jpg'],
             // Appetizers
-            ['name' => 'Bruschetta', 'slug' => 'bruschetta', 'category_id' => $appetizers->id, 'base_price' => 9.99, 'description' => 'Toasted bread with tomatoes, basil, and balsamic glaze', 'is_active' => true],
-            ['name' => 'Calamari', 'slug' => 'calamari', 'category_id' => $appetizers->id, 'base_price' => 12.99, 'description' => 'Crispy fried calamari with marinara sauce', 'is_active' => true],
-            ['name' => 'Spinach Artichoke Dip', 'slug' => 'spinach-artichoke-dip', 'category_id' => $appetizers->id, 'base_price' => 11.99, 'description' => 'Creamy dip served with tortilla chips', 'is_active' => true],
-            ['name' => 'Chicken Wings', 'slug' => 'chicken-wings', 'category_id' => $appetizers->id, 'base_price' => 14.99, 'description' => 'Buffalo wings with ranch dressing', 'is_active' => true, 'has_variants' => true],
+            ['name' => 'Bruschetta', 'slug' => 'bruschetta', 'category_id' => $appetizers->id, 'base_price' => 9.99, 'description' => 'Toasted bread with tomatoes, basil, and balsamic glaze', 'is_active' => true, 'image_url' => '/storage/menu-items/bruschetta.jpg'],
+            ['name' => 'Calamari', 'slug' => 'calamari', 'category_id' => $appetizers->id, 'base_price' => 12.99, 'description' => 'Crispy fried calamari with marinara sauce', 'is_active' => true, 'image_url' => '/storage/menu-items/calamari.jpg'],
+            ['name' => 'Spinach Artichoke Dip', 'slug' => 'spinach-artichoke-dip', 'category_id' => $appetizers->id, 'base_price' => 11.99, 'description' => 'Creamy dip served with tortilla chips', 'is_active' => true, 'image_url' => '/storage/menu-items/spinach-artichoke-dip.jpg'],
+            ['name' => 'Chicken Wings', 'slug' => 'chicken-wings', 'category_id' => $appetizers->id, 'base_price' => 14.99, 'description' => 'Buffalo wings with ranch dressing', 'is_active' => true, 'has_variants' => true, 'image_url' => '/storage/menu-items/chicken-wings.jpg'],
             // Desserts
-            ['name' => 'Tiramisu', 'slug' => 'tiramisu', 'category_id' => $desserts->id, 'base_price' => 8.99, 'description' => 'Classic Italian coffee-flavored dessert', 'is_active' => true],
-            ['name' => 'Chocolate Lava Cake', 'slug' => 'chocolate-lava-cake', 'category_id' => $desserts->id, 'base_price' => 9.99, 'description' => 'Warm chocolate cake with molten center', 'is_active' => true, 'is_featured' => true],
-            ['name' => 'Cheesecake', 'slug' => 'cheesecake', 'category_id' => $desserts->id, 'base_price' => 7.99, 'description' => 'New York style cheesecake with berry compote', 'is_active' => true],
+            ['name' => 'Tiramisu', 'slug' => 'tiramisu', 'category_id' => $desserts->id, 'base_price' => 8.99, 'description' => 'Classic Italian coffee-flavored dessert', 'is_active' => true, 'image_url' => '/storage/menu-items/tiramisu.jpg'],
+            ['name' => 'Chocolate Lava Cake', 'slug' => 'chocolate-lava-cake', 'category_id' => $desserts->id, 'base_price' => 9.99, 'description' => 'Warm chocolate cake with molten center', 'is_active' => true, 'is_featured' => true, 'image_url' => '/storage/menu-items/chocolate-lava-cake.jpg'],
+            ['name' => 'Cheesecake', 'slug' => 'cheesecake', 'category_id' => $desserts->id, 'base_price' => 7.99, 'description' => 'New York style cheesecake with berry compote', 'is_active' => true, 'image_url' => '/storage/menu-items/cheesecake.jpg'],
             // Beverages
-            ['name' => 'Fresh Lemonade', 'slug' => 'fresh-lemonade', 'category_id' => $beverages->id, 'base_price' => 4.99, 'description' => 'House-made lemonade', 'is_active' => true],
-            ['name' => 'Iced Tea', 'slug' => 'iced-tea', 'category_id' => $beverages->id, 'base_price' => 3.99, 'description' => 'Fresh brewed iced tea', 'is_active' => true],
-            ['name' => 'Espresso', 'slug' => 'espresso', 'category_id' => $beverages->id, 'base_price' => 3.49, 'description' => 'Double shot espresso', 'is_active' => true],
-            ['name' => 'House Wine', 'slug' => 'house-wine', 'category_id' => $beverages->id, 'base_price' => 8.99, 'description' => 'Glass of our selected house wine', 'is_active' => true],
+            ['name' => 'Fresh Lemonade', 'slug' => 'fresh-lemonade', 'category_id' => $beverages->id, 'base_price' => 4.99, 'description' => 'House-made lemonade', 'is_active' => true, 'image_url' => '/storage/menu-items/fresh-lemonade.jpg'],
+            ['name' => 'Iced Tea', 'slug' => 'iced-tea', 'category_id' => $beverages->id, 'base_price' => 3.99, 'description' => 'Fresh brewed iced tea', 'is_active' => true, 'image_url' => '/storage/menu-items/iced-tea.jpg'],
+            ['name' => 'Espresso', 'slug' => 'espresso', 'category_id' => $beverages->id, 'base_price' => 3.49, 'description' => 'Double shot espresso', 'is_active' => true, 'image_url' => '/storage/menu-items/espresso.jpg'],
             // Salads
-            ['name' => 'Caesar Salad', 'slug' => 'caesar-salad', 'category_id' => $salads->id, 'base_price' => 13.99, 'description' => 'Romaine lettuce, croutons, parmesan with Caesar dressing', 'is_active' => true],
-            ['name' => 'Greek Salad', 'slug' => 'greek-salad', 'category_id' => $salads->id, 'base_price' => 14.99, 'description' => 'Tomatoes, cucumbers, olives, feta cheese', 'is_active' => true],
-            ['name' => 'Garden Salad', 'slug' => 'garden-salad', 'category_id' => $salads->id, 'base_price' => 9.99, 'description' => 'Mixed greens with seasonal vegetables', 'is_active' => true],
+            ['name' => 'Caesar Salad', 'slug' => 'caesar-salad', 'category_id' => $salads->id, 'base_price' => 13.99, 'description' => 'Romaine lettuce, croutons, parmesan with Caesar dressing', 'is_active' => true, 'image_url' => '/storage/menu-items/caesar-salad.jpg'],
+            ['name' => 'Greek Salad', 'slug' => 'greek-salad', 'category_id' => $salads->id, 'base_price' => 14.99, 'description' => 'Tomatoes, cucumbers, olives, feta cheese', 'is_active' => true, 'image_url' => '/storage/menu-items/greek-salad.jpg'],
+            ['name' => 'Garden Salad', 'slug' => 'garden-salad', 'category_id' => $salads->id, 'base_price' => 9.99, 'description' => 'Mixed greens with seasonal vegetables', 'is_active' => true, 'image_url' => '/storage/menu-items/garden-salad.jpg'],
         ];
         foreach ($items as $data) {
-            MenuItem::firstOrCreate(['slug' => $data['slug']], $data);
+            $imagePath = 'menu-items/' . $data['slug'] . '.jpg';
+            if (isset($data['image_url']) && \Illuminate\Support\Facades\Storage::disk('public')->exists($imagePath)) {
+                // Image exists, keep it
+            } else {
+                $data['image_url'] = null; // Use fallback placeholder in UI
+            }
+            MenuItem::updateOrCreate(['slug' => $data['slug']], $data);
         }
 
         // ─── Menu Item Variants ───────────────────────────────────
@@ -413,15 +439,17 @@ class DemoDataSeeder extends Seeder
                 ]
             );
             $ingredients = Ingredient::take(5)->get();
-            foreach ($ingredients as $ing) {
-                PurchaseOrderItem::create([
-                    'purchase_order_id' => $po->id,
-                    'ingredient_id' => $ing->id,
-                    'quantity' => 10,
-                    'unit_cost' => $ing->cost_per_unit,
-                    'total_cost' => 10 * $ing->cost_per_unit,
-                    'received_quantity' => 10,
-                ]);
+            if ($po->wasRecentlyCreated) {
+                foreach ($ingredients as $ing) {
+                    PurchaseOrderItem::create([
+                        'purchase_order_id' => $po->id,
+                        'ingredient_id' => $ing->id,
+                        'quantity' => 10,
+                        'unit_cost' => $ing->cost_per_unit,
+                        'total_cost' => 10 * $ing->cost_per_unit,
+                        'received_quantity' => 10,
+                    ]);
+                }
             }
         }
 
@@ -492,6 +520,71 @@ class DemoDataSeeder extends Seeder
                 'status' => 'open',
                 'notes' => 'Morning shift',
             ]);
+        }
+
+        // ─── Orders (seed data for Reports & Analytics) ─────────
+        if (Order::count() === 0) {
+        $menuItems = MenuItem::all();
+        $staff = User::first();
+        $seq = 1;
+        $statusPool = ['completed', 'completed', 'completed', 'served', 'served', 'preparing', 'pending', 'cancelled'];
+        $sourcePool = ['pos', 'pos', 'web', 'walk_in', 'phone'];
+        $typePool = ['dine_in', 'takeaway', 'delivery'];
+
+        for ($i = 0; $i < 90; $i++) {
+            $date = now()->subDays(rand(0, 89))->subHours(rand(8, 22))->subMinutes(rand(0, 59));
+            $status = $statusPool[array_rand($statusPool)];
+            $source = $sourcePool[array_rand($sourcePool)];
+            $numItems = rand(1, 4);
+            $subtotal = 0;
+            $lineItems = [];
+
+            for ($j = 0; $j < $numItems; $j++) {
+                $mi = $menuItems->random();
+                $qty = rand(1, 3);
+                $unit = (float) $mi->base_price;
+                $lineSub = $unit * $qty;
+                $subtotal += $lineSub;
+                $lineItems[] = [
+                    'menu_item_id' => $mi->id,
+                    'item_name' => $mi->name,
+                    'unit_price' => $unit,
+                    'quantity' => $qty,
+                    'subtotal' => $lineSub,
+                ];
+            }
+
+            $tax = round($subtotal * 0.10, 2);
+            $service = round($subtotal * 0.05, 2);
+            $total = round($subtotal + $tax + $service, 2);
+
+            $order = Order::create([
+                'order_number' => 'ORD-' . str_pad($seq, 5, '0', STR_PAD_LEFT),
+                'source' => $source,
+                'status' => $status,
+                'type' => $typePool[array_rand($typePool)],
+                'customer_id' => null,
+                'user_id' => $staff?->id,
+                'subtotal' => $subtotal,
+                'tax_amount' => $tax,
+                'service_charge' => $service,
+                'discount_amount' => 0,
+                'total_amount' => $total,
+                'ordered_at' => $date,
+                'completed_at' => in_array($status, ['completed', 'served'])
+                    ? $date->copy()->addMinutes(rand(20, 90))
+                    : null,
+            ]);
+            // Backdate created_at so Reports (which filter by created_at) reflect history
+            $order->created_at = $date;
+            $order->save();
+
+            foreach ($lineItems as $li) {
+                $order->items()->create($li);
+            }
+
+            $seq++;
+        }
         }
     }
 }

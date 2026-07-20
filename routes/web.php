@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CmsBannerController;
 use App\Http\Controllers\Admin\CmsFaqController;
 use App\Http\Controllers\Admin\CmsPageController;
 use App\Http\Controllers\Admin\CmsPromotionController;
@@ -11,11 +12,11 @@ use App\Http\Controllers\Admin\KdsStationController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\ModifierGroupController;
 use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\PosOrderController;
 use App\Http\Controllers\Admin\PosDrawerController;
-use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\PosOrderController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\RecipeController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RestaurantTableController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StockAdjustmentController;
@@ -48,6 +49,9 @@ Route::post('/contact', [ContactInquiryController::class, 'store'])->name('publi
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
+    Route::get('/demo-login/customer', [LoginController::class, 'demo'])
+        ->defaults('role', 'customer')
+        ->name('demo.login.customer');
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
     Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
@@ -62,6 +66,7 @@ Route::middleware('auth')->group(function () {
         if (auth()->user() && method_exists(auth()->user(), 'roles') && auth()->user()->roles->isNotEmpty()) {
             return redirect()->route('admin.dashboard');
         }
+
         return view('dashboard');
     })->name('dashboard');
 });
@@ -77,13 +82,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest')->group(function () {
         Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
         Route::post('/login', [AdminLoginController::class, 'store']);
-        Route::get('/demo-login/{role}', [LoginController::class, 'demo'])
-            ->whereIn('role', ['admin', 'customer'])
+        Route::get('/demo-login/admin', [LoginController::class, 'demo'])
+            ->defaults('role', 'admin')
             ->name('demo.login');
     });
 
     // Admin Authenticated
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'admin'])->group(function () {
 
         // POS
         Route::get('pos', [PosOrderController::class, 'index'])->name('pos.index');
@@ -123,6 +128,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('cms/faqs', CmsFaqController::class)
             ->names('cms.faqs')->parameters(['faq' => 'faq']);
 
+        // CMS Banners / Slider
+        Route::resource('cms/banners', CmsBannerController::class)
+            ->names('cms.banners')->parameters(['banner' => 'banner']);
+        Route::delete('cms/banners/{banner}/image', [CmsBannerController::class, 'deleteImageAction'])
+            ->name('cms.banners.image.delete');
+
         // CMS Contact Inquiries
         Route::get('cms/inquiries', [AdminContactInquiryController::class, 'index'])->name('cms.inquiries.index');
         Route::get('cms/inquiries/{inquiry}', [AdminContactInquiryController::class, 'show'])->name('cms.inquiries.show');
@@ -140,6 +151,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Menu Items
         Route::resource('menu/items', MenuItemController::class)
             ->names('menu.items')->parameters(['item' => 'item']);
+        Route::delete('menu/items/{item}/image', [MenuItemController::class, 'deleteImageAction'])->name('menu.items.image.delete');
         Route::get('menu/items/{item}/variants', [MenuItemController::class, 'variants'])->name('menu.items.variants');
         Route::post('menu/items/{item}/variants', [MenuItemController::class, 'storeVariant'])->name('menu.items.variants.store');
 

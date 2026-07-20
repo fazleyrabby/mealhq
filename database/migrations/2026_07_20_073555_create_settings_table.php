@@ -23,7 +23,7 @@ return new class extends Migration
         // Seed default settings
         $now = now();
         $defaults = [
-            ['key' => 'company_name', 'value' => 'My Restaurant', 'group' => 'company', 'created_at' => $now, 'updated_at' => $now],
+            ['key' => 'company_name', 'value' => 'MealHQ', 'group' => 'company', 'created_at' => $now, 'updated_at' => $now],
             ['key' => 'company_email', 'value' => 'info@restaurant.test', 'group' => 'company', 'created_at' => $now, 'updated_at' => $now],
             ['key' => 'company_phone', 'value' => '+1234567890', 'group' => 'company', 'created_at' => $now, 'updated_at' => $now],
             ['key' => 'company_address', 'value' => '123 Main St, City', 'group' => 'company', 'created_at' => $now, 'updated_at' => $now],

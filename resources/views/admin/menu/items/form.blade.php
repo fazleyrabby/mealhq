@@ -28,6 +28,20 @@
                 @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">Image</label>
+                @if(!empty($item?->image_url))
+                <div class="mb-2 d-flex align-items-center gap-3">
+                    <img src="{{ $item->image_url }}" alt="{{ $item->name }}" class="rounded" style="width:80px;height:80px;object-fit:cover;">
+                    <button type="submit" form="delete-image-form" class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Delete this image? This cannot be undone.')">Delete Image</button>
+                </div>
+                @endif
+                <input type="file" class="form-control @error('image') is-invalid @enderror" name="image" accept="image/jpeg,image/png,image/jpg,image/webp">
+                <small class="form-hint">Accepted formats: JPEG, PNG, JPG, WEBP. Max size: 2 MB.</small>
+                @error('image')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+            </div>
+
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label class="form-label">Category</label>
@@ -50,9 +64,10 @@
                 <div class="col-md-4">
                     <label class="form-label">Channel Visibility</label>
                     <select class="form-select @error('channel_visibility') is-invalid @enderror" name="channel_visibility">
-                        <option value="both" {{ old('channel_visibility', $item->channel_visibility ?? '') === 'both' ? 'selected' : '' }}>Both</option>
-                        <option value="web" {{ old('channel_visibility', $item->channel_visibility ?? '') === 'web' ? 'selected' : '' }}>Web Only</option>
-                        <option value="pos" {{ old('channel_visibility', $item->channel_visibility ?? '') === 'pos' ? 'selected' : '' }}>POS Only</option>
+                        <option value="all" {{ old('channel_visibility', $item->channel_visibility ?? 'all') === 'all' ? 'selected' : '' }}>All Channels</option>
+                        <option value="web_only" {{ old('channel_visibility', $item->channel_visibility ?? '') === 'web_only' ? 'selected' : '' }}>Web Only</option>
+                        <option value="pos_only" {{ old('channel_visibility', $item->channel_visibility ?? '') === 'pos_only' ? 'selected' : '' }}>POS Only</option>
+                        <option value="qr_only" {{ old('channel_visibility', $item->channel_visibility ?? '') === 'qr_only' ? 'selected' : '' }}>QR Only</option>
                     </select>
                     @error('channel_visibility')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
@@ -82,6 +97,12 @@
             <button type="submit" class="btn btn-primary">{{ $item ? 'Update' : 'Create' }}</button>
             <a href="{{ route('admin.menu.items.index') }}" class="btn btn-secondary">Cancel</a>
         </form>
+
+        @if(!empty($item?->image_url))
+        <form id="delete-image-form" method="POST" action="{{ route('admin.menu.items.image.delete', $item) }}" class="d-none">
+            @csrf @method('DELETE')
+        </form>
+        @endif
     </div>
 </div>
 @endsection

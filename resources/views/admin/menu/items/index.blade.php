@@ -18,7 +18,7 @@
             :per-page="$perPage ?? 20"
             :filters="[
                 ['field' => 'is_active', 'label' => 'Status', 'options' => ['1' => 'Active', '0' => 'Inactive']],
-                ['field' => 'channel_visibility', 'label' => 'Channel', 'options' => ['both' => 'Both', 'web' => 'Web', 'pos' => 'POS']],
+                ['field' => 'channel_visibility', 'label' => 'Channel', 'options' => ['all' => 'All', 'web_only' => 'Web Only', 'pos_only' => 'POS Only', 'qr_only' => 'QR Only']],
             ]"
             :applied-filters="$appliedFilters ?? []"
         />

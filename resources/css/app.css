@@ -4,6 +4,88 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-serif: 'Spectral', ui-serif, Georgia, serif;
+
+    /* Brand — premium restaurant palette */
+    --color-forest-50: #f1f6f2;
+    --color-forest-100: #dce8de;
+    --color-forest-200: #b9d2be;
+    --color-forest-300: #8db497;
+    --color-forest-400: #5f9070;
+    --color-forest-500: #3f7355;
+    --color-forest-600: #2f5c44;
+    --color-forest-700: #274a38;
+    --color-forest-800: #213c2f;
+    --color-forest-900: #1c3227;
+
+    --color-olive-400: #a3a04e;
+    --color-olive-500: #8a8740;
+    --color-olive-600: #6f6d33;
+
+    --color-cream-50: #fdfbf6;
+    --color-cream-100: #f8f3e9;
+    --color-cream-200: #efe6d3;
+    --color-cream-300: #e3d4b6;
+
+    --color-charcoal-700: #2c2c2a;
+    --color-charcoal-800: #1f1f1d;
+    --color-charcoal-900: #141413;
+
+    --color-clay-500: #b5533b;
+    --color-clay-600: #9c4531;
+
+    --color-gold-400: #c9a24b;
+    --color-gold-500: #b58e35;
+}
+
+@layer base {
+    body {
+        @apply bg-cream-50 text-charcoal-800 antialiased;
+    }
+
+    h1, h2, h3, h4 {
+        @apply font-serif tracking-tight;
+    }
+}
+
+@layer components {
+    .btn-primary, .btn-accent, .btn-outline, .btn-ghost-light {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium tracking-wide transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    }
+    .btn-primary {
+        @apply bg-forest-700 text-cream-50 hover:bg-forest-800 focus-visible:ring-forest-500 shadow-sm hover:shadow-md;
+    }
+    .btn-accent {
+        @apply bg-clay-500 text-cream-50 hover:bg-clay-600 focus-visible:ring-clay-500 shadow-sm hover:shadow-md;
+    }
+    .btn-outline {
+        @apply border border-forest-700 text-forest-700 hover:bg-forest-700 hover:text-cream-50 focus-visible:ring-forest-500;
+    }
+    .btn-ghost-light {
+        @apply border border-cream-100/40 text-cream-50 hover:bg-cream-50 hover:text-forest-800;
+    }
+
+    .eyebrow {
+        @apply inline-block text-xs font-semibold uppercase tracking-[0.25em] text-olive-600;
+    }
+
+    .section {
+        @apply mx-auto max-w-7xl px-6 lg:px-8;
+    }
+
+    .card-dish {
+        @apply overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(20,20,19,0.06),0_12px_28px_-16px_rgba(20,20,19,0.25)] transition-all duration-300 hover:shadow-[0_1px_2px_rgba(20,20,19,0.08),0_20px_40px_-18px_rgba(20,20,19,0.35)];
+    }
+
+    .prose-about {
+        h1 { @apply font-serif text-3xl text-forest-800 mt-8 mb-4; }
+        h2 { @apply font-serif text-2xl text-forest-800 mt-8 mb-3; }
+        h3 { @apply font-serif text-xl text-forest-800 mt-6 mb-2; }
+        p { @apply mb-4; }
+        ul { @apply list-disc pl-6 mb-4 space-y-1; }
+        ol { @apply list-decimal pl-6 mb-4 space-y-1; }
+        a { @apply text-forest-700 underline underline-offset-2 hover:text-clay-500; }
+        blockquote { @apply border-l-4 border-olive-500 pl-4 italic text-charcoal-700/70 my-4; }
+    }
 }

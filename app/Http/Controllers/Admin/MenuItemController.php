@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\MenuItem;
 use App\Services\AdminListingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MenuItemController extends Controller
 {
@@ -15,7 +16,7 @@ class MenuItemController extends Controller
         $result = $listing->process(
             MenuItem::with('category'),
             ['name', 'slug'],
-            ['is_active' => ['1', '0'], 'channel_visibility' => ['both', 'web', 'pos']],
+            ['is_active' => ['1', '0'], 'channel_visibility' => ['all', 'web_only', 'pos_only', 'qr_only']],
             'name',
             'asc'
         );
@@ -38,11 +39,16 @@ class MenuItemController extends Controller
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
-            'channel_visibility' => 'required|in:both,web,pos',
+            'channel_visibility' => 'required|in:all,web_only,pos_only,qr_only',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'is_taxable' => 'boolean',
-        ]);
+        ], $this->imageMessages());
+
+        if ($request->hasFile('image')) {
+            $validated['image_url'] = Storage::url($request->file('image')->store('menu-items', 'public'));
+        }
 
         MenuItem::create($validated);
 
@@ -64,11 +70,17 @@ class MenuItemController extends Controller
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
-            'channel_visibility' => 'required|in:both,web,pos',
+            'channel_visibility' => 'required|in:all,web_only,pos_only,qr_only',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'is_taxable' => 'boolean',
-        ]);
+        ], $this->imageMessages());
+
+        if ($request->hasFile('image')) {
+            $this->deleteImage($item->image_url);
+            $validated['image_url'] = Storage::url($request->file('image')->store('menu-items', 'public'));
+        }
 
         $item->update($validated);
 
@@ -80,6 +92,30 @@ class MenuItemController extends Controller
         $item->delete();
 
         return redirect()->route('admin.menu.items.index')->with('success', 'Menu item deleted.');
+    }
+
+    public function deleteImageAction(MenuItem $item)
+    {
+        $this->deleteImage($item->image_url);
+        $item->update(['image_url' => null]);
+
+        return redirect()->route('admin.menu.items.edit', $item)->with('success', 'Image deleted.');
+    }
+
+    private function imageMessages(): array
+    {
+        return [
+            'image.image' => 'The uploaded file must be an image.',
+            'image.mimes' => 'The image must be a JPEG, PNG, JPG, or WEBP file.',
+            'image.max' => 'The image may not be larger than 2 MB.',
+        ];
+    }
+
+    private function deleteImage(?string $url): void
+    {
+        if ($url && str_starts_with($url, '/storage/')) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $url));
+        }
     }
 
     public function variants(MenuItem $item)

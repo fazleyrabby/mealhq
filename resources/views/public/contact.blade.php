@@ -3,51 +3,52 @@
 @section('title', 'Contact Us - ' . \App\Models\Setting::get('company_name', 'MealHQ'))
 
 @section('content')
-<section class="bg-gray-50 py-16">
+<section class="bg-cream-100 py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-            <p class="text-lg text-gray-600">We'd love to hear from you</p>
+            <span class="eyebrow">Get In Touch</span>
+            <h1 class="mt-3 font-serif text-4xl text-forest-800 md:text-5xl">Contact Us</h1>
+            <p class="mt-4 text-lg text-charcoal-700/80">We'd love to hear from you</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="grid grid-cols-1 gap-12 md:grid-cols-2">
             <!-- Contact Info -->
             <div>
                 <div class="space-y-6">
                     <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-forest-100 text-forest-700">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900">Address</h3>
-                            <p class="text-gray-600">{{ \App\Models\Setting::get('company_address', '123 Main St, City') }}</p>
+                            <h3 class="font-semibold text-forest-800">Address</h3>
+                            <p class="text-charcoal-700/80">{{ \App\Models\Setting::get('company_address', '123 Main St, City') }}</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-forest-100 text-forest-700">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900">Email</h3>
-                            <p class="text-gray-600">{{ \App\Models\Setting::get('company_email', 'info@restaurant.test') }}</p>
+                            <h3 class="font-semibold text-forest-800">Email</h3>
+                            <p class="text-charcoal-700/80">{{ \App\Models\Setting::get('company_email', 'info@restaurant.test') }}</p>
                         </div>
                     </div>
                     <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-forest-100 text-forest-700">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900">Phone</h3>
-                            <p class="text-gray-600">{{ \App\Models\Setting::get('company_phone', '+1234567890') }}</p>
+                            <h3 class="font-semibold text-forest-800">Phone</h3>
+                            <p class="text-charcoal-700/80">{{ \App\Models\Setting::get('company_phone', '+1234567890') }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Contact Form -->
-            <div class="bg-white rounded-xl shadow-sm p-8">
+            <div class="card-dish p-8">
                 @if(session('success'))
-                    <div class="bg-green-50 text-green-700 p-4 rounded-lg mb-6">
+                    <div class="mb-6 rounded-lg bg-forest-100 p-4 text-forest-800">
                         {{ session('success') }}
                     </div>
                 @endif
@@ -56,32 +57,35 @@
                     @csrf
                     <div class="space-y-4">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-                            <input type="text" name="name" id="name" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" value="{{ old('name') }}">
-                            @error('name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            <label for="name" class="mb-1 block text-sm font-medium text-forest-800">Name *</label>
+                            <input type="text" name="name" id="name" required value="{{ old('name') }}"
+                                   class="w-full rounded-lg border border-cream-300 bg-cream-50 px-4 py-2.5 text-charcoal-800 outline-none transition focus:border-forest-500 focus:ring-2 focus:ring-forest-200">
+                            @error('name')<p class="mt-1 text-xs text-clay-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                            <input type="email" name="email" id="email" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" value="{{ old('email') }}">
-                            @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            <label for="email" class="mb-1 block text-sm font-medium text-forest-800">Email *</label>
+                            <input type="email" name="email" id="email" required value="{{ old('email') }}"
+                                   class="w-full rounded-lg border border-cream-300 bg-cream-50 px-4 py-2.5 text-charcoal-800 outline-none transition focus:border-forest-500 focus:ring-2 focus:ring-forest-200">
+                            @error('email')<p class="mt-1 text-xs text-clay-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                            <input type="text" name="phone" id="phone" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" value="{{ old('phone') }}">
+                            <label for="phone" class="mb-1 block text-sm font-medium text-forest-800">Phone</label>
+                            <input type="text" name="phone" id="phone" value="{{ old('phone') }}"
+                                   class="w-full rounded-lg border border-cream-300 bg-cream-50 px-4 py-2.5 text-charcoal-800 outline-none transition focus:border-forest-500 focus:ring-2 focus:ring-forest-200">
                         </div>
                         <div>
-                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject *</label>
-                            <input type="text" name="subject" id="subject" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" value="{{ old('subject') }}">
-                            @error('subject')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            <label for="subject" class="mb-1 block text-sm font-medium text-forest-800">Subject *</label>
+                            <input type="text" name="subject" id="subject" required value="{{ old('subject') }}"
+                                   class="w-full rounded-lg border border-cream-300 bg-cream-50 px-4 py-2.5 text-charcoal-800 outline-none transition focus:border-forest-500 focus:ring-2 focus:ring-forest-200">
+                            @error('subject')<p class="mt-1 text-xs text-clay-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
-                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message *</label>
-                            <textarea name="message" id="message" rows="4" required class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">{{ old('message') }}</textarea>
-                            @error('message')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            <label for="message" class="mb-1 block text-sm font-medium text-forest-800">Message *</label>
+                            <textarea name="message" id="message" rows="4" required
+                                      class="w-full rounded-lg border border-cream-300 bg-cream-50 px-4 py-2.5 text-charcoal-800 outline-none transition focus:border-forest-500 focus:ring-2 focus:ring-forest-200">{{ old('message') }}</textarea>
+                            @error('message')<p class="mt-1 text-xs text-clay-600">{{ $message }}</p>@enderror
                         </div>
-                        <button type="submit" class="w-full bg-orange-600 text-white font-medium py-3 rounded-lg hover:bg-orange-700 transition">
-                            Send Message
-                        </button>
+                        <button type="submit" class="btn-primary w-full">Send Message</button>
                     </div>
                 </form>
             </div>

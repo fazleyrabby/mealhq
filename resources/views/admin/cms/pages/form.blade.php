@@ -21,8 +21,10 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label">Content</label>
-                    <textarea class="form-control @error('content') is-invalid @enderror" name="content" rows="8">{{ old('content', $page->content ?? '') }}</textarea>
-                    @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <input id="content" type="hidden" name="content" value="{{ old('content', $page->content ?? '') }}">
+                    <trix-editor input="content" class="trix-content bg-white" style="min-height: 320px;"></trix-editor>
+                    <small class="text-muted">Rich text editor — you can use headings, lists, bold, links and paste Markdown. Stored as HTML.</small>
+                    @error('content')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Meta Title</label>
@@ -48,3 +50,11 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+    <link rel="stylesheet" href="https://unpkg.com/trix@2.1.15/dist/trix.css">
+@endpush
+
+@push('scripts')
+    <script src="https://unpkg.com/trix@2.1.15/dist/trix.umd.min.js"></script>
+@endpush

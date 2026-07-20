@@ -58,19 +58,21 @@
                         </li>
 
                         <!-- CMS -->
-                        <li class="nav-item dropdown {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle" href="#navbar-cms" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->routeIs('admin.cms.*') ? 'true' : 'false' }}">
+                        @php($cmsActive = request()->routeIs('admin.cms.*'))
+                        <li class="nav-item dropdown {{ $cmsActive ? 'active show' : '' }}">
+                            <a class="nav-link dropdown-toggle {{ $cmsActive ? 'show' : '' }}" href="#navbar-cms" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ $cmsActive ? 'true' : 'false' }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
                                 </span>
                                 <span class="nav-link-title">CMS</span>
                             </a>
-                            <ul class="dropdown-menu" data-bs-popper="none">
-                                <li><a class="dropdown-item" href="{{ route('admin.cms.pages.index') }}">Pages</a></li>
-                                <li><a class="dropdown-item" href="{{ route('admin.cms.promotions.index') }}">Promotions</a></li>
-                                <li><a class="dropdown-item" href="{{ route('admin.cms.faqs.index') }}">FAQs</a></li>
-                                <li><a class="dropdown-item" href="{{ route('admin.cms.gallery.index') }}">Gallery</a></li>
-                                <li><a class="dropdown-item" href="{{ route('admin.cms.inquiries.index') }}">Inquiries</a></li>
+                            <ul class="dropdown-menu {{ $cmsActive ? 'show' : '' }}" data-bs-popper="none">
+                                <li><a class="dropdown-item {{ request()->routeIs('admin.cms.pages.*') ? 'active' : '' }}" href="{{ route('admin.cms.pages.index') }}">Pages</a></li>
+                                <li><a class="dropdown-item {{ request()->routeIs('admin.cms.promotions.*') ? 'active' : '' }}" href="{{ route('admin.cms.promotions.index') }}">Promotions</a></li>
+                                <li><a class="dropdown-item {{ request()->routeIs('admin.cms.faqs.*') ? 'active' : '' }}" href="{{ route('admin.cms.faqs.index') }}">FAQs</a></li>
+                                <li><a class="dropdown-item {{ request()->routeIs('admin.cms.gallery.*') ? 'active' : '' }}" href="{{ route('admin.cms.gallery.index') }}">Gallery</a></li>
+                                <li><a class="dropdown-item {{ request()->routeIs('admin.cms.banners.*') ? 'active' : '' }}" href="{{ route('admin.cms.banners.index') }}">Banners</a></li>
+                                <li><a class="dropdown-item {{ request()->routeIs('admin.cms.inquiries.*') ? 'active' : '' }}" href="{{ route('admin.cms.inquiries.index') }}">Inquiries</a></li>
                             </ul>
                         </li>
 
