@@ -1,5 +1,22 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CmsFaqController;
+use App\Http\Controllers\Admin\CmsPageController;
+use App\Http\Controllers\Admin\CmsPromotionController;
+use App\Http\Controllers\Admin\IngredientController;
+use App\Http\Controllers\Admin\KdsStationController;
+use App\Http\Controllers\Admin\MenuItemController;
+use App\Http\Controllers\Admin\ModifierGroupController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PosDrawerController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
+use App\Http\Controllers\Admin\RecipeController;
+use App\Http\Controllers\Admin\RestaurantTableController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\StockAdjustmentController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -44,4 +61,106 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    // Admin Panel
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+
+        // Settings
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+        Route::post('/settings', [SettingsController::class, 'update']);
+        Route::post('/settings/hours', [SettingsController::class, 'updateHours'])->name('settings.hours');
+        Route::post('/settings/tax-rates', [SettingsController::class, 'storeTaxRate'])->name('settings.tax-rates');
+
+        // CMS Pages
+        Route::resource('cms/pages', CmsPageController::class)
+            ->names('cms.pages')->parameters(['page' => 'page']);
+
+        // CMS Promotions
+        Route::resource('cms/promotions', CmsPromotionController::class)
+            ->names('cms.promotions')->parameters(['promotion' => 'promotion']);
+
+        // CMS FAQs
+        Route::resource('cms/faqs', CmsFaqController::class)
+            ->names('cms.faqs')->parameters(['faq' => 'faq']);
+
+        // CMS Contact Inquiries
+        Route::get('cms/inquiries', [App\Http\Controllers\Admin\ContactInquiryController::class, 'index'])->name('cms.inquiries.index');
+        Route::get('cms/inquiries/{inquiry}', [App\Http\Controllers\Admin\ContactInquiryController::class, 'show'])->name('cms.inquiries.show');
+        Route::post('cms/inquiries/{inquiry}/read', [App\Http\Controllers\Admin\ContactInquiryController::class, 'markRead'])->name('cms.inquiries.read');
+        Route::post('cms/inquiries/{inquiry}/replied', [App\Http\Controllers\Admin\ContactInquiryController::class, 'markReplied'])->name('cms.inquiries.replied');
+        Route::delete('cms/inquiries/{inquiry}', [App\Http\Controllers\Admin\ContactInquiryController::class, 'destroy'])->name('cms.inquiries.destroy');
+
+        // Gallery (placeholder route)
+        Route::get('cms/gallery', function () {
+            return view('admin.cms.gallery.index');
+        })->name('cms.gallery.index');
+
+        // Menu Categories
+        Route::resource('menu/categories', CategoryController::class)
+            ->names('menu.categories')->parameters(['category' => 'category']);
+
+        // Menu Items
+        Route::resource('menu/items', MenuItemController::class)
+            ->names('menu.items')->parameters(['item' => 'item']);
+        Route::get('menu/items/{item}/variants', [MenuItemController::class, 'variants'])->name('menu.items.variants');
+        Route::post('menu/items/{item}/variants', [MenuItemController::class, 'storeVariant'])->name('menu.items.variants.store');
+
+        // Modifier Groups
+        Route::resource('menu/modifiers', ModifierGroupController::class)
+            ->names('menu.modifiers')->parameters(['modifierGroup' => 'modifier_group']);
+        Route::post('menu/modifiers/{modifierGroup}/items', [ModifierGroupController::class, 'storeItem'])
+            ->name('menu.modifiers.items.store');
+
+        // Inventory Ingredients
+        Route::resource('inventory/ingredients', IngredientController::class)
+            ->names('inventory.ingredients')->parameters(['ingredient' => 'ingredient']);
+
+        // Inventory Recipes
+        Route::resource('inventory/recipes', RecipeController::class)
+            ->names('inventory.recipes')->parameters(['recipe' => 'recipe']);
+
+        // Inventory Suppliers
+        Route::resource('inventory/suppliers', SupplierController::class)
+            ->names('inventory.suppliers')->parameters(['supplier' => 'supplier']);
+
+        // Inventory Purchase Orders
+        Route::resource('inventory/purchase-orders', PurchaseOrderController::class)
+            ->names('inventory.purchase-orders')->parameters(['purchaseOrder' => 'purchase_order']);
+        Route::post('inventory/purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive'])
+            ->name('inventory.purchase-orders.receive');
+
+        // Inventory Stock Adjustments
+        Route::get('inventory/adjustments', [StockAdjustmentController::class, 'index'])->name('inventory.adjustments.index');
+        Route::get('inventory/adjustments/create', [StockAdjustmentController::class, 'create'])->name('inventory.adjustments.create');
+        Route::post('inventory/adjustments', [StockAdjustmentController::class, 'store'])->name('inventory.adjustments.store');
+
+        // Orders
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
+
+        // Operations - Tables
+        Route::get('operations/tables', [RestaurantTableController::class, 'indexTables'])->name('operations.tables.index');
+        Route::get('operations/tables/create', [RestaurantTableController::class, 'createTable'])->name('operations.tables.create');
+        Route::post('operations/tables', [RestaurantTableController::class, 'storeTable'])->name('operations.tables.store');
+        Route::get('operations/tables/{table}/edit', [RestaurantTableController::class, 'editTable'])->name('operations.tables.edit');
+        Route::put('operations/tables/{table}', [RestaurantTableController::class, 'updateTable'])->name('operations.tables.update');
+        Route::delete('operations/tables/{table}', [RestaurantTableController::class, 'destroyTable'])->name('operations.tables.destroy');
+
+        // Operations - Zones
+        Route::get('operations/zones', [RestaurantTableController::class, 'indexZones'])->name('operations.zones.index');
+        Route::post('operations/zones', [RestaurantTableController::class, 'storeZone'])->name('operations.zones.store');
+        Route::delete('operations/zones/{zone}', [RestaurantTableController::class, 'destroyZone'])->name('operations.zones.destroy');
+
+        // Operations - POS Drawers
+        Route::get('operations/drawers', [PosDrawerController::class, 'index'])->name('operations.drawers.index');
+        Route::post('operations/drawers', [PosDrawerController::class, 'store'])->name('operations.drawers.store');
+        Route::post('operations/drawers/{posDrawer}/close', [PosDrawerController::class, 'close'])->name('operations.drawers.close');
+
+        // Operations - KDS Stations
+        Route::get('operations/kds', [KdsStationController::class, 'index'])->name('operations.kds.index');
+        Route::post('operations/kds', [KdsStationController::class, 'store'])->name('operations.kds.store');
+        Route::delete('operations/kds/{kdsStation}', [KdsStationController::class, 'destroy'])->name('operations.kds.destroy');
+    });
 });
