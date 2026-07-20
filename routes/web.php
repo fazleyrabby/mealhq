@@ -4,12 +4,16 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\ContactInquiryController;
+use App\Http\Controllers\PublicWebsiteController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+// Public website routes
+Route::get('/', [PublicWebsiteController::class, 'home'])->name('home');
+Route::get('/menu', [PublicWebsiteController::class, 'menu'])->name('public.menu');
+Route::get('/about', [PublicWebsiteController::class, 'about'])->name('public.about');
+Route::get('/contact', [PublicWebsiteController::class, 'contact'])->name('public.contact');
+Route::post('/contact', [ContactInquiryController::class, 'store'])->name('public.contact.store');
 
 // Guest routes (unauthenticated)
 Route::middleware('guest')->group(function () {
