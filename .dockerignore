@@ -12,6 +12,6 @@ bootstrap/cache/*.php
 !bootstrap/cache/.gitkeep
 docker-compose.yml
 Dockerfile
-*.md
+docs/
 .DS_Store
 Thumbs.db

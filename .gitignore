@@ -11,6 +11,17 @@
 .env.backup
 .env.testing
 .phpunit.result.cache
+*.log
+.phpactor.json
+/.codex
+/.cursor/
+/.nova
+/.zed
+/auth.json
+/public/fonts-manifest.dev.json
+/storage/pail
+_ide_helper.php
+Thumbs.db
 docker-compose.override.yml
 Homestead.json
 Homestead.yaml
@@ -37,3 +48,6 @@ storage/framework/views/*
 !storage/framework/views/.gitkeep
 storage/logs/*
 !storage/logs/.gitkeep
+
+# Documentation (specs, tracking, etc)
+/docs/
