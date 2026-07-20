@@ -1,0 +1,82 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mealhq_app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: mealhq
+      DB_USERNAME: mealhq
+      DB_PASSWORD: secret
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      MAIL_USERNAME: null
+      MAIL_PASSWORD: null
+      MAIL_ENCRYPTION: null
+      MAIL_FROM_ADDRESS: "noreply@mealhq.test"
+      MAIL_FROM_NAME: "MealHQ"
+    volumes:
+      - .:/var/www/html
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mealhq
+
+  mysql:
+    image: mysql:8.0
+    container_name: mealhq_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: mealhq
+      MYSQL_USER: mealhq
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootsecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mealhq
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mealhq_mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - mealhq
+
+  node:
+    image: node:22-alpine
+    container_name: mealhq_node
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    entrypoint: ["tail"]
+    command: ["-f", "/dev/null"]
+    networks:
+      - mealhq
+
+volumes:
+  mysql_data:
+
+networks:
+  mealhq:
+    driver: bridge
