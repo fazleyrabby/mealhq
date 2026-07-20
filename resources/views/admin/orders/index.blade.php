@@ -58,7 +58,13 @@
                     <td>{{ $order->customer->name ?? $order->customer->email ?? 'Guest' }}</td>
                     <td>${{ number_format($order->total_amount, 2) }}</td>
                     <td>{{ $order->created_at->format('M d, H:i') }}</td>
-                    <td><a href="{{ route('admin.orders.show', $order) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                    <td class="text-nowrap">
+                        <a href="{{ route('admin.orders.edit', $order) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" class="d-inline" onsubmit="return confirm('Delete order #{{ $order->order_number }}?');">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </td>
                 </tr>
                 @empty
                 <tr><td colspan="8" class="text-center text-muted py-4">No orders</td></tr>

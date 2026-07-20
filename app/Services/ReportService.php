@@ -24,7 +24,7 @@ class ReportService
             ->toArray();
     }
 
-    public function topSellingItems(int $limit = 10): array
+    public function topSellingItems(int $limit = 10, ?int $days = null): array
     {
         return OrderItem::select(
             'menu_item_id',
@@ -32,8 +32,11 @@ class ReportService
             DB::raw('SUM(quantity) as total_quantity'),
             DB::raw('SUM(subtotal) as total_revenue')
         )
-            ->whereHas('order', function ($q) {
+            ->whereHas('order', function ($q) use ($days) {
                 $q->whereIn('status', ['completed', 'served']);
+                if ($days) {
+                    $q->where('created_at', '>=', now()->subDays($days));
+                }
             })
             ->groupBy('menu_item_id', 'item_name')
             ->orderByDesc('total_quantity')
@@ -48,13 +51,17 @@ class ReportService
             ->value('total_value') ?? 0;
     }
 
-    public function ordersBySource(): array
+    public function ordersBySource(?int $days = null): array
     {
-        return Order::select('source', DB::raw('COUNT(*) as count'))
+        return Order::select(
+            'source',
+            DB::raw('COUNT(*) as count'),
+            DB::raw('SUM(total_amount) as total')
+        )
             ->whereIn('status', ['completed', 'served'])
+            ->when($days, fn ($q) => $q->where('created_at', '>=', now()->subDays($days)))
             ->groupBy('source')
             ->get()
-            ->pluck('count', 'source')
             ->toArray();
     }
 }

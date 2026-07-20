@@ -124,6 +124,15 @@
                             </a>
                         </li>
 
+                        <li class="nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ route('admin.reports.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                                </span>
+                                <span class="nav-link-title">Reports</span>
+                            </a>
+                        </li>
+
                         <!-- Operations -->
                         <li class="nav-item dropdown {{ request()->routeIs('admin.operations.*') ? 'active' : '' }}">
                             <a class="nav-link dropdown-toggle" href="#navbar-operations" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="{{ request()->routeIs('admin.operations.*') ? 'true' : 'false' }}">

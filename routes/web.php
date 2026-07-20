@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ModifierGroupController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PosOrderController;
 use App\Http\Controllers\Admin\PosDrawerController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\RecipeController;
 use App\Http\Controllers\Admin\RestaurantTableController;
@@ -88,14 +89,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('pos', [PosOrderController::class, 'index'])->name('pos.index');
         Route::post('pos/order', [PosOrderController::class, 'store'])->name('pos.store');
         Route::put('pos/order/{order}', [PosOrderController::class, 'update'])->name('pos.update');
+        Route::get('pos/order/{order}/receipt', [PosOrderController::class, 'receipt'])->name('pos.receipt');
         Route::get('pos/order/{order}', [PosOrderController::class, 'show'])->name('pos.show');
         Route::get('pos/search', [PosOrderController::class, 'searchProducts'])->name('pos.search');
         Route::get('pos/customers', [PosOrderController::class, 'searchCustomers'])->name('pos.customers');
         Route::get('pos/today', [PosOrderController::class, 'todayOrders'])->name('pos.today');
+        Route::get('pos/cart', [PosOrderController::class, 'getCart'])->name('pos.cart');
+        Route::post('pos/cart/sync', [PosOrderController::class, 'syncCart'])->name('pos.cart.sync');
+        Route::post('pos/cart/clear', [PosOrderController::class, 'clearCart'])->name('pos.cart.clear');
         Route::get('pos/recent', [PosOrderController::class, 'recentOrders'])->name('pos.recent');
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/', fn () => redirect()->route('admin.dashboard'));
+
+        // Reports & Analytics
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
 
         // Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
@@ -167,6 +175,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Orders
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::get('orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
+        Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+        Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
         Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
 
         // Operations - Tables

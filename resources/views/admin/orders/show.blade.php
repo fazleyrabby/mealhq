@@ -78,7 +78,16 @@
                 </form>
             </div>
         </div>
-        <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary w-100 mt-3">Back to Orders</a>
+        <div class="d-grid gap-2 mt-3">
+            <a href="{{ route('admin.orders.edit', $order) }}" class="btn btn-primary">Edit Order</a>
+            <a href="{{ route('admin.pos.receipt', $order) }}" target="_blank" class="btn btn-outline-secondary">Print A4 Invoice</a>
+            <a href="{{ route('admin.pos.receipt', $order) }}?format=thermal" target="_blank" class="btn btn-outline-secondary">Print 58mm Receipt</a>
+            <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return confirm('Delete order #{{ $order->order_number }}?');">
+                @csrf @method('DELETE')
+                <button class="btn btn-outline-danger w-100">Delete Order</button>
+            </form>
+            <a href="{{ route('admin.orders.index') }}" class="btn btn-secondary">Back to Orders</a>
+        </div>
     </div>
 </div>
 @endsection

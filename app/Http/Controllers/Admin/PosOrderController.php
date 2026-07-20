@@ -13,6 +13,7 @@ use App\Models\OrderItemModifier;
 use App\Models\RestaurantTable;
 use App\Models\Setting;
 use App\Models\TaxRate;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -92,6 +93,50 @@ class PosOrderController extends Controller
         ]);
     }
 
+    public function getCart(): JsonResponse
+    {
+        return response()->json(session('pos_cart', $this->emptyCart()));
+    }
+
+    public function syncCart(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'items' => 'array',
+            'items.*.menu_item_id' => 'required|integer',
+            'items.*.menu_item_variant_id' => 'nullable|integer',
+            'items.*.item_name' => 'required|string',
+            'items.*.variant_name' => 'nullable|string',
+            'items.*.unit_price' => 'required|numeric',
+            'items.*.qty' => 'required|integer|min:1',
+            'items.*.modifiers' => 'array',
+            'items.*.modifiers.*.group_name' => 'string',
+            'items.*.modifiers.*.item_name' => 'string',
+            'items.*.modifiers.*.price_adjustment' => 'numeric',
+            'items.*.special_instructions' => 'nullable|string',
+            'items.*.image_url' => 'nullable|string',
+            'order_type' => 'in:dine_in,takeaway,delivery',
+            'customer_id' => 'nullable|integer',
+            'customer_name' => 'nullable|string',
+            'table_id' => 'nullable|integer',
+            'table_number' => 'nullable|string',
+            'discount_amount' => 'nullable|numeric',
+            'editing_order_id' => 'nullable|integer',
+            'editing_order_number' => 'nullable|string',
+        ]);
+
+        $cart = array_merge($this->emptyCart(), $data);
+        session(['pos_cart' => $cart]);
+
+        return response()->json(['success' => true, 'cart' => $cart]);
+    }
+
+    public function clearCart(): JsonResponse
+    {
+        session(['pos_cart' => $this->emptyCart()]);
+
+        return response()->json(['success' => true, 'cart' => $this->emptyCart()]);
+    }
+
     public function searchCustomers(Request $request): JsonResponse
     {
         $query = $request->get('q', '');
@@ -126,7 +171,7 @@ class PosOrderController extends Controller
             'customer_id' => 'nullable|exists:customers,id',
             'table_session_id' => 'nullable|integer',
             'type' => 'required|in:dine_in,takeaway,delivery',
-            'source' => 'required|in:pos,walk_in',
+            'source' => 'nullable|in:pos,walk_in',
             'notes' => 'nullable|string|max:1000',
             'discount_amount' => 'nullable|numeric|min:0',
             'promo_code' => 'nullable|string|max:30',
@@ -136,7 +181,7 @@ class PosOrderController extends Controller
 
         $order = Order::create([
             'order_number' => $orderNumber,
-            'source' => $validated['source'],
+            'source' => $validated['source'] ?? 'pos',
             'status' => 'pending',
             'type' => $validated['type'],
             'customer_id' => $validated['customer_id'] ?? null,
@@ -213,6 +258,25 @@ class PosOrderController extends Controller
         return response()->json($order->load('items.modifiers', 'customer', 'tableSession.restaurantTable'));
     }
 
+    public function receipt(Order $order)
+    {
+        $order->load(['items.modifiers', 'customer', 'user', 'tableSession.restaurantTable.zone']);
+
+        $format = request()->get('format', 'a4');
+
+        if ($format === 'thermal') {
+            // 58mm thermal paper ~= 164.4pt wide; tall page so the receipt flows without breaking.
+            $pdf = Pdf::loadView('admin.pos.receipt-thermal', compact('order'))
+                ->setPaper([0, 0, 164.4, 2000], 'portrait');
+
+            return $pdf->stream('receipt-' . $order->order_number . '.pdf');
+        }
+
+        $pdf = Pdf::loadView('admin.pos.receipt-a4', compact('order'))->setPaper('a4');
+
+        return $pdf->stream('invoice-' . $order->order_number . '.pdf');
+    }
+
     public function todayOrders(): JsonResponse
     {
         $orders = Order::with(['items', 'customer', 'tableSession.restaurantTable'])
@@ -223,6 +287,21 @@ class PosOrderController extends Controller
             ->get();
 
         return response()->json($orders);
+    }
+
+    private function emptyCart(): array
+    {
+        return [
+            'items' => [],
+            'order_type' => 'dine_in',
+            'customer_id' => null,
+            'customer_name' => null,
+            'table_id' => null,
+            'table_number' => null,
+            'discount_amount' => 0,
+            'editing_order_id' => null,
+            'editing_order_number' => null,
+        ];
     }
 
     private function syncOrderItems(Order $order, array $items): void

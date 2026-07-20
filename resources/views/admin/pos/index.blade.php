@@ -80,40 +80,15 @@
     {{-- ======================== CENTER: PRODUCTS ======================== --}}
     <main class="pos-products">
         <div class="px-3 py-2 border-bottom border-light bg-white">
-            <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2">
                 <div class="position-relative flex-fill">
                     <svg class="position-absolute top-50 translate-middle-y ms-2" width="16" height="16" fill="none" stroke="#adb5bd" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                     <input type="text" class="search-input ps-4" placeholder="Search products... (F2)" x-model="searchQuery" @input.debounce.300ms="filterProducts()" id="pos-search">
                 </div>
-                <template x-if="editingOrder">
-                    <span class="badge bg-warning text-dark" style="font-size:.75rem;white-space:nowrap">Editing #<span x-text="editingOrder.order_number"></span></span>
-                </template>
-                <button class="btn btn-sm" :class="showOrders ? 'btn-primary' : 'btn-outline-secondary'" @click="showOrders = !showOrders" title="Today's Orders">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
-                    <span x-show="todayOrders.length" class="badge bg-danger ms-1" x-text="todayOrders.length"></span>
-                </button>
                 <button class="btn btn-sm btn-outline-secondary" @click="newOrder" title="New Order">
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
                 </button>
             </div>
-            {{-- Today's Orders Panel --}}
-            <template x-if="showOrders">
-                <div class="border rounded p-2" style="max-height:10rem;overflow-y:auto;background:#f8f9fa">
-                    <template x-if="!todayOrders.length">
-                        <div class="text-muted small py-2 text-center">No orders today</div>
-                    </template>
-                    <template x-for="o in todayOrders" :key="o.id">
-                        <div class="d-flex align-items-center gap-2 px-2 py-1 rounded cursor-pointer" style="cursor:pointer" :class="{ 'bg-primary text-white': editingOrder?.id == o.id, 'bg-light': editingOrder?.id != o.id }" @click="editOrder(o); showOrders = false">
-                            <span class="small fw-semibold" x-text="'#' + o.order_number"></span>
-                            <span class="small" x-text="o.type?.replace('_', ' ')"></span>
-                            <span x-show="o.customer" class="small text-truncate" x-text="o.customer?.name"></span>
-                            <span class="badge bg-secondary ms-auto small" x-text="o.status"></span>
-                            <span class="small fw-semibold" x-text="'$' + Number(o.total_amount).toFixed(2)"></span>
-                            <span class="small text-muted" x-text="o.items?.length + ' items'"></span>
-                        </div>
-                    </template>
-                </div>
-            </template>
         </div>
         <div class="flex-fill pos-scroll" id="products-container">
             <div class="product-grid">
@@ -218,7 +193,7 @@
                             <button class="btn btn-sm btn-outline-secondary btn-qty" @click="updateQty(idx, 1)">+</button>
                         </div>
                         <span class="fw-semibold" style="font-size:.8125rem;color:#1a1d21">$<span x-text="itemLineTotal(item).toFixed(2)"></span></span>
-                        <button class="btn btn-sm p-0 text-danger border-0 bg-transparent" @click="cart.splice(idx, 1)" style="font-size:1rem">&times;</button>
+                        <button class="btn btn-sm p-0 text-danger border-0 bg-transparent" @click="removeItem(idx)" style="font-size:1rem">&times;</button>
                     </div>
                 </div>
             </template>
@@ -401,15 +376,13 @@ function posApp() {
         tableMap: {{ Js::from($tables->toArray()) }},
         taxRates: {{ Js::from([['rate' => $taxRate?->rate ?? 0]]) }},
         serviceChargeRate: {{ $serviceChargeRate }},
-        todayOrders: {{ Js::from($todayOrders->toArray()) }},
 
         activeCategory: null,
         categorySearch: '',
         searchQuery: '',
         products: [],
-        showOrders: false,
-        editingOrder: null,
 
+        // Cart state (persisted to server session)
         cart: [],
         orderType: 'dine_in',
         selectedTable: null,
@@ -419,6 +392,7 @@ function posApp() {
         customerResults: [],
         discountAmount: 0,
         showDiscount: false,
+        loadingCart: false,
 
         showModifierModal: false,
         selectedItem: null,
@@ -455,7 +429,7 @@ function posApp() {
         },
         get taxAmount() { return this.subtotal * (this.taxRate / 100); },
         get serviceCharge() { return this.subtotal * (this.serviceChargeRate / 100); },
-        get grandTotal() { return Math.max(0, this.subtotal + this.taxAmount + this.serviceCharge - this.discountAmount); },
+        get grandTotal() { return Math.max(0, this.subtotal + this.taxAmount + this.serviceCharge - Number(this.discountAmount || 0)); },
         get modifierTotalPrice() {
             if (!this.selectedItem) return 0;
             const base = Number(this.selectedItem.base_price) || 0;
@@ -465,16 +439,44 @@ function posApp() {
             return (base + vAdj + mAdj) * this.itemQty;
         },
 
+        persist() {
+            fetch('/admin/pos/cart/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
+                body: JSON.stringify({
+                    items: this.cart,
+                    order_type: this.orderType,
+                    customer_id: this.selectedCustomer?.id || null,
+                    customer_name: this.selectedCustomer?.name || null,
+                    table_id: this.selectedTable?.id || null,
+                    table_number: this.selectedTable?.table_number || null,
+                    discount_amount: this.discountAmount,
+                    editing_order_id: this.editingOrderId,
+                    editing_order_number: this.editingOrderNumber,
+                }),
+            }).catch(() => {});
+        },
+
         init() {
-            this.filterProducts();
             document.querySelector('.page-body')?.classList.add('p-0');
             document.querySelector('.container-xl')?.classList.add('p-0', 'mw-100');
             const header = document.querySelector('.page-header');
             if (header) header.style.display = 'none';
-            // Auto-load the most recent open order
-            if (this.todayOrders.length && !this.cart.length) {
-                this.editOrder(this.todayOrders[0]);
-            }
+
+            this.loadingCart = true;
+            fetch('/admin/pos/cart')
+                .then(r => r.json())
+                .then(cart => {
+                    this.cart = cart.items || [];
+                    this.orderType = cart.order_type || 'dine_in';
+                    this.discountAmount = Number(cart.discount_amount || 0);
+                    if (cart.customer_id) this.selectedCustomer = { id: cart.customer_id, name: cart.customer_name || 'Customer' };
+                    if (cart.table_id) this.selectedTable = { id: cart.table_id, table_number: cart.table_number || 'Table' };
+                    this.filterProducts();
+                })
+                .catch(() => { this.filterProducts(); })
+                .finally(() => { this.loadingCart = false; });
+
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'F2') { e.preventDefault(); document.getElementById('pos-search')?.focus(); }
                 if (e.key === 'F4') { e.preventDefault(); this.showTablePicker = !this.showTablePicker; }
@@ -515,12 +517,20 @@ function posApp() {
                 });
             }
             this.filterProducts();
+            this.persist();
         },
 
         updateQty(idx, delta) {
             if (!this.cart[idx]) return;
             this.cart[idx].qty = Math.max(1, this.cart[idx].qty + delta);
             this.filterProducts();
+            this.persist();
+        },
+
+        removeItem(idx) {
+            this.cart.splice(idx, 1);
+            this.filterProducts();
+            this.persist();
         },
 
         itemLineTotal(item) {
@@ -532,7 +542,9 @@ function posApp() {
             if (!this.cart.length) return;
             if (!confirm('Clear all items?')) return;
             this.cart = []; this.selectedTable = null; this.selectedCustomer = null;
-            this.discountAmount = 0; this.filterProducts();
+            this.discountAmount = 0;
+            this.filterProducts();
+            this.persist();
         },
 
         searchCustomers() {
@@ -542,8 +554,14 @@ function posApp() {
                 .catch(() => { this.customerResults = []; });
         },
 
-        selectCustomer(c) { this.selectedCustomer = c; this.customerQuery = ''; this.customerResults = []; },
-        selectTable(t) { this.selectedTable = this.selectedTable?.id === t.id ? null : t; },
+        selectCustomer(c) {
+            this.selectedCustomer = c; this.customerQuery = ''; this.customerResults = [];
+            this.persist();
+        },
+        selectTable(t) {
+            this.selectedTable = this.selectedTable?.id === t.id ? null : t;
+            this.persist();
+        },
 
         openItemModal(item) {
             this.selectedItem = item; this.selectedVariant = null;
@@ -579,56 +597,32 @@ function posApp() {
                 modifiers: mods, special_instructions: this.specialInstructions,
                 image_url: this.selectedItem.image_url || null,
             });
-            this.closeModifierModal(); this.filterProducts();
+            this.closeModifierModal();
+            this.filterProducts();
+            this.persist();
         },
 
         openPaymentModal() { this.paymentMethod = 'Cash'; this.amountReceived = this.grandTotal; this.showPaymentModal = true; },
 
-        editOrder(order) {
-            if (!order || !order.items?.length) { this.newOrder(); return; }
-            this.editingOrder = order;
-            this.orderType = order.type || 'dine_in';
-            this.selectedCustomer = order.customer ? { id: order.customer.id, name: order.customer.name, email: order.customer.email, phone: order.customer.phone } : null;
-            this.selectedTable = order.table_session?.restaurant_table ? { id: order.table_session.restaurant_table.id, table_number: order.table_session.restaurant_table.table_number } : null;
-            this.discountAmount = Number(order.discount_amount || 0);
-            this.cart = order.items.map(i => ({
-                menu_item_id: i.menu_item_id,
-                menu_item_variant_id: i.menu_item_variant_id,
-                item_name: i.item_name,
-                variant_name: i.variant_name,
-                unit_price: Number(i.unit_price),
-                qty: i.quantity,
-                modifiers: (i.modifiers || []).map(m => ({
-                    group_name: m.modifier_group_name,
-                    item_name: m.modifier_item_name,
-                    price_adjustment: Number(m.price_adjustment),
-                })),
-                special_instructions: i.special_instructions || '',
-                image_url: null,
-            }));
-            this.filterProducts();
-        },
-
         newOrder() {
-            this.editingOrder = null;
             this.cart = [];
             this.selectedTable = null;
             this.selectedCustomer = null;
             this.discountAmount = 0;
             this.filterProducts();
+            this.persist();
         },
 
         submitOrder() {
             if (this.submitting || !this.cart.length) return;
             this.submitting = true;
 
-            const isUpdate = this.editingOrder && this.editingOrder.id;
-            const url = isUpdate ? '/admin/pos/order/' + this.editingOrder.id : '/admin/pos/order';
-            const method = isUpdate ? 'PUT' : 'POST';
+            const url = '/admin/pos/order';
+            const method = 'POST';
 
             fetch(url, {
                 method: method,
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
                 body: JSON.stringify({
                     items: this.cart.map(i => ({
                         menu_item_id: i.menu_item_id, menu_item_variant_id: i.menu_item_variant_id,
@@ -638,7 +632,7 @@ function posApp() {
                     })),
                     customer_id: this.selectedCustomer?.id || null,
                     table_session_id: this.selectedTable?.id || null,
-                    type: this.orderType, notes: '',
+                    type: this.orderType, source: 'pos', notes: '',
                     discount_amount: this.discountAmount,
                 }),
             })
@@ -646,24 +640,21 @@ function posApp() {
             .then(data => {
                 if (data.success) {
                     this.successMessage = data.message; this.showSuccess = true;
-                    // Reload today's orders and load the updated order
-                    this.fetchTodayOrders();
-                    this.editingOrder = null;
+                    const printed = this.printReceipt && data.order?.id;
+                    if (printed) {
+                        const fmt = 'thermal';
+                        window.open('/admin/pos/order/' + data.order.id + '/receipt?format=' + fmt, '_blank');
+                    }
+                    // Reset cart + clear session
                     this.cart = []; this.selectedTable = null; this.selectedCustomer = null;
                     this.discountAmount = 0; this.showPaymentModal = false;
                     this.filterProducts();
+                    this.persist();
                     setTimeout(() => { this.showSuccess = false; }, 4000);
                 } else { alert(data.message || 'Error'); }
             })
             .catch(err => { console.error(err); alert('Error placing order'); })
             .finally(() => { this.submitting = false; });
-        },
-
-        fetchTodayOrders() {
-            fetch('/admin/pos/today')
-                .then(r => r.json())
-                .then(data => { this.todayOrders = data; })
-                .catch(() => {});
         },
     };
 }
