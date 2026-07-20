@@ -5,7 +5,7 @@
 @push('styles')
 <style>
     [x-cloak] { display: none !important; }
-    .pos-wrapper { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1040; display: flex; padding-left: 15rem; }
+    .pos-wrapper { display: flex; height: calc(100vh - 3.5rem); }
     .pos-categories { width: 250px; min-width: 250px; background: #f8f9fa; border-right: 1px solid #e9ecef; display: flex; flex-direction: column; height: 100vh; }
     .pos-products { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100vh; background: #fff; }
     .pos-cart { width: 380px; min-width: 380px; background: #f8f9fa; border-left: 1px solid #e9ecef; display: flex; flex-direction: column; height: 100vh; }
@@ -434,6 +434,12 @@ function posApp() {
 
         init() {
             this.filterProducts();
+            // Remove container constraints for full-width POS
+            document.querySelector('.page-body')?.classList.add('p-0');
+            document.querySelector('.container-xl')?.classList.add('p-0', 'mw-100');
+            const header = document.querySelector('.page-header');
+            if (header) header.style.display = 'none';
+            // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'F2') { e.preventDefault(); document.getElementById('pos-search')?.focus(); }
                 if (e.key === 'F4') { e.preventDefault(); this.showTablePicker = !this.showTablePicker; }
