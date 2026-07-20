@@ -14,8 +14,11 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // Demo admin user
-        User::firstOrCreate(
+        // Roles & Permissions
+        $this->call(RolePermissionSeeder::class);
+
+        // Demo admin user (assign Owner role)
+        $admin = User::firstOrCreate(
             ['email' => 'admin@mealhq.test'],
             [
                 'name' => 'Admin User',
@@ -23,6 +26,7 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+        $admin->assignRole('Owner');
 
         // Demo customer
         Customer::firstOrCreate(

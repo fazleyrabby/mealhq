@@ -1,79 +1,65 @@
 <?php
 
-namespace Tests\Feature\Auth;
-
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class AuthenticationTest extends TestCase
-{
-    use RefreshDatabase;
+test('login screen can be rendered', function () {
+    $response = $this->get('/login');
 
-    public function test_login_screen_can_be_rendered(): void
-    {
-        $response = $this->get('/login');
+    $response->assertStatus(200);
+});
 
-        $response->assertStatus(200);
-    }
+test('users can authenticate using the login screen', function () {
+    $user = User::factory()->create([
+        'password' => bcrypt('password'),
+    ]);
 
-    public function test_users_can_authenticate_using_the_login_screen(): void
-    {
-        $user = User::factory()->create([
-            'password' => bcrypt('password'),
-        ]);
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
 
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
+    $this->assertAuthenticated();
+    $response->assertRedirect('/dashboard');
+});
 
-        $this->assertAuthenticated();
-        $response->assertRedirect('/dashboard');
-    }
+test('users cannot authenticate with invalid password', function () {
+    $user = User::factory()->create([
+        'password' => bcrypt('password'),
+    ]);
 
-    public function test_users_cannot_authenticate_with_invalid_password(): void
-    {
-        $user = User::factory()->create([
-            'password' => bcrypt('password'),
-        ]);
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'wrong-password',
+    ]);
 
+    $this->assertGuest();
+});
+
+test('users can logout', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->post('/logout');
+
+    $response->assertRedirect('/');
+    $this->assertGuest();
+});
+
+test('login is throttled after five attempts', function () {
+    $user = User::factory()->create([
+        'password' => bcrypt('password'),
+    ]);
+
+    for ($i = 0; $i < 5; $i++) {
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
-
-        $this->assertGuest();
     }
 
-    public function test_users_can_logout(): void
-    {
-        $user = User::factory()->create();
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'wrong-password',
+    ]);
 
-        $response = $this->actingAs($user)->post('/logout');
-
-        $response->assertRedirect('/');
-        $this->assertGuest();
-    }
-
-    public function test_login_is_throttled_after_five_attempts(): void
-    {
-        $user = User::factory()->create([
-            'password' => bcrypt('password'),
-        ]);
-
-        for ($i = 0; $i < 5; $i++) {
-            $this->post('/login', [
-                'email' => $user->email,
-                'password' => 'wrong-password',
-            ]);
-        }
-
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'wrong-password',
-        ]);
-
-        $response->assertSessionHasErrors('email');
-    }
-}
+    $response->assertSessionHasErrors('email');
+});

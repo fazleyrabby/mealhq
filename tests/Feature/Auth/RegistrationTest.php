@@ -1,43 +1,30 @@
 <?php
 
-namespace Tests\Feature\Auth;
+test('registration screen can be rendered', function () {
+    $response = $this->get('/register');
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+    $response->assertStatus(200);
+});
 
-class RegistrationTest extends TestCase
-{
-    use RefreshDatabase;
+test('new users can register', function () {
+    $response = $this->post('/register', [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
 
-    public function test_registration_screen_can_be_rendered(): void
-    {
-        $response = $this->get('/register');
+    $this->assertAuthenticated();
+    $response->assertRedirect('/dashboard');
+});
 
-        $response->assertStatus(200);
-    }
+test('registration fails with invalid data', function () {
+    $response = $this->post('/register', [
+        'name' => '',
+        'email' => 'not-an-email',
+        'password' => 'short',
+        'password_confirmation' => 'not-matching',
+    ]);
 
-    public function test_new_users_can_register(): void
-    {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
-
-        $this->assertAuthenticated();
-        $response->assertRedirect('/dashboard');
-    }
-
-    public function test_registration_fails_with_invalid_data(): void
-    {
-        $response = $this->post('/register', [
-            'name' => '',
-            'email' => 'not-an-email',
-            'password' => 'short',
-            'password_confirmation' => 'not-matching',
-        ]);
-
-        $response->assertSessionHasErrors(['name', 'email', 'password']);
-    }
-}
+    $response->assertSessionHasErrors(['name', 'email', 'password']);
+});
