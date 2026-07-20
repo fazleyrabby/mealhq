@@ -54,22 +54,22 @@
             <input type="text" class="search-input" placeholder="Search categories..." x-model="categorySearch">
         </div>
         <div class="flex-fill overflow-auto py-2">
-            <button class="cat-btn" :class="{ active: !activeCategory }" @click="activeCategory = null; loadProducts()">
+            <button class="cat-btn" :class="{ active: !activeCategory }" @click="activeCategory = null; filterProducts()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                 <span>All Items</span>
                 <span class="cat-count">{{ $categories->sum('menu_items_count') }}</span>
             </button>
-            <button class="cat-btn" @click="activeCategory = 'favorites'; loadProducts()">
+            <button class="cat-btn" @click="activeCategory = 'favorites'; filterProducts()">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 <span>Favorites</span>
             </button>
-            <button class="cat-btn" @click="activeCategory = 'bestsellers'; loadProducts()">
+            <button class="cat-btn" @click="activeCategory = 'bestsellers'; filterProducts()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01"/><path d="M4 5h16v4l-3 4-3-4 3-4"/><path d="M4 13h16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2z"/></svg>
                 <span>Best Sellers</span>
             </button>
             <hr class="my-2 border-dark">
             <template x-for="cat in filteredCategories" :key="cat.id">
-                <button class="cat-btn" :class="{ active: activeCategory == cat.id }" @click="activeCategory = cat.id; loadProducts()">
+                <button class="cat-btn" :class="{ active: activeCategory == cat.id }" @click="activeCategory = cat.id; filterProducts()">
                     <span x-text="cat.name"></span>
                     <span class="cat-count" x-text="cat.menu_items_count"></span>
                 </button>
@@ -84,7 +84,7 @@
             <div class="d-flex gap-2 flex-fill">
                 <div class="position-relative flex-fill">
                     <svg class="position-absolute top-50 start-0 translate-middle-y ms-2" width="16" height="16" fill="none" stroke="#9ba0a6" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                    <input type="text" class="search-input ps-4" placeholder="Search products... (F2)" x-model="searchQuery" @keydown.window.prevent.f2="$el.focus()" @input.debounce.300ms="loadProducts()" id="pos-search">
+                    <input type="text" class="search-input ps-4" placeholder="Search products... (F2)" x-model="searchQuery" @keydown.window.prevent.f2="$el.focus()" @input.debounce.300ms="filterProducts()" id="pos-search">
                 </div>
             </div>
             <button class="btn btn-sm btn-outline-secondary" @click="showOrderType = !showOrderType" title="Order Type">
@@ -468,59 +468,25 @@ function posApp() {
         },
 
         init() {
-            this.loadProducts();
-            // Keyboard shortcut for F8 payment
+            this.filterProducts();
+            // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'F8') { e.preventDefault(); if (this.cart.length) this.openPaymentModal(); }
                 if (e.key === 'Escape') { this.closeModifierModal(); this.showPaymentModal = false; }
                 if (e.key === 'F4') { e.preventDefault(); this.showTablePicker = !this.showTablePicker; }
                 if (e.key === 'F5') { e.preventDefault(); this.showDiscount = !this.showDiscount; }
             });
-            // Focus search on load
             setTimeout(() => document.getElementById('pos-search')?.focus(), 100);
         },
 
-        // Products
-        loadProducts() {
-            this.loading = true;
-            this.page = 1;
-            const url = new URL('{{ route("admin.pos.search") }}', window.location.origin);
-            if (this.searchQuery) url.searchParams.set('q', this.searchQuery);
-            if (this.activeCategory && !['favorites','bestsellers'].includes(this.activeCategory)) {
-                url.searchParams.set('category_id', this.activeCategory);
-            }
-            url.searchParams.set('page', this.page);
-
-            fetch(url)
-                .then(r => r.json())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data.html, 'text/html');
-                    const items = doc.querySelectorAll('.product-card');
-                    this.products = [];
-                    items.forEach(el => {
-                        const match = data.html.match(/x-data="posApp\(\)"/);
-                        // We'll rebuild products from allProducts with qty from cart
-                    });
-                    // Simpler: rebuild from allProducts with current search/category
-                    this.rebuildProducts();
-                    this.hasMore = data.has_more;
-                    this.loading = false;
-                })
-                .catch(() => {
-                    this.rebuildProducts();
-                    this.loading = false;
-                });
-        },
-
-        rebuildProducts() {
+        filterProducts() {
             let items = [...this.allProducts];
             if (this.searchQuery) {
                 const q = this.searchQuery.toLowerCase();
                 items = items.filter(i => i.name.toLowerCase().includes(q));
             }
-            if (this.activeCategory && this.activeCategory !== 'favorites' && this.activeCategory !== 'bestsellers') {
-                items = items.filter(i => i.category_id == this.activeCategory);
+            if (this.activeCategory && !['favorites','bestsellers'].includes(this.activeCategory)) {
+                items = items.filter(i => String(i.category_id) === String(this.activeCategory));
             }
             if (this.activeCategory === 'favorites') {
                 items = items.filter(i => i.is_featured);
@@ -528,20 +494,11 @@ function posApp() {
             if (this.activeCategory === 'bestsellers') {
                 items = items.sort(() => Math.random() - 0.5).slice(0, 20);
             }
-            // Map cart qty
             items = items.map(i => {
-                const cartItem = this.cart.find(c => c.menu_item_id == i.id);
-                return { ...i, qty: cartItem?.qty || 0, image_url: i.image_url || null, category_name: i.category?.name || '', modifier_groups: this.modifierGroupsData.filter(g => i.modifier_group_ids?.includes(g.id)) || [] };
+                const cartItem = this.cart.find(c => c.menu_item_id === i.id);
+                return { ...i, qty: cartItem?.qty || 0, category_name: i.category?.name || '' };
             });
             this.products = items;
-        },
-
-        onProductsScroll(e) {
-            const el = e.target;
-            if (el.scrollTop + el.clientHeight >= el.scrollHeight - 200 && this.hasMore && !this.loading) {
-                this.page++;
-                this.loadProducts();
-            }
         },
 
         // Cart
@@ -566,14 +523,14 @@ function posApp() {
                     image_url: item.image_url || null,
                 });
             }
-            this.rebuildProducts();
+            this.filterProducts();
         },
 
         updateQty(idx, delta) {
             const item = this.cart[idx];
             if (!item) return;
             item.qty = Math.max(1, item.qty + delta);
-            this.rebuildProducts();
+            this.filterProducts();
         },
 
         itemLineTotal(item) {
@@ -587,7 +544,7 @@ function posApp() {
                 this.selectedTable = null;
                 this.selectedCustomer = null;
                 this.discountAmount = 0;
-                this.rebuildProducts();
+                this.filterProducts();
             }
         },
 
@@ -671,7 +628,7 @@ function posApp() {
             });
 
             this.closeModifierModal();
-            this.rebuildProducts();
+            this.filterProducts();
         },
 
         // Payment
@@ -723,7 +680,7 @@ function posApp() {
                     this.selectedCustomer = null;
                     this.discountAmount = 0;
                     this.showPaymentModal = false;
-                    this.rebuildProducts();
+                    this.filterProducts();
                     setTimeout(() => { this.showSuccess = false; }, 4000);
                 }
             })

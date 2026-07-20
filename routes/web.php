@@ -58,6 +58,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/dashboard', function () {
+        if (auth()->user() && method_exists(auth()->user(), 'roles') && auth()->user()->roles->isNotEmpty()) {
+            return redirect()->route('admin.dashboard');
+        }
         return view('dashboard');
     })->name('dashboard');
 });

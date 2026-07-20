@@ -24,7 +24,7 @@ class PosOrderController extends Controller
             $q->where('is_active', true);
         }])->where('is_active', true)->orderBy('sort_order')->get();
 
-        $products = MenuItem::with(['media', 'category', 'modifierGroups.modifierItems'])
+        $products = MenuItem::with(['category', 'modifierGroups.items'])
             ->where('is_active', true)
             ->orderBy('name')
             ->paginate(50);
@@ -34,7 +34,7 @@ class PosOrderController extends Controller
             ->get()
             ->groupBy(fn ($t) => $t->zone?->name ?? 'General');
 
-        $modifierGroups = ModifierGroup::with('modifierItems')
+        $modifierGroups = ModifierGroup::with('items')
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get();
@@ -42,10 +42,10 @@ class PosOrderController extends Controller
         $taxRate = TaxRate::where('is_default', true)->first();
         $serviceChargeRate = (float) Setting::get('service_charge_rate', 0);
 
-        $allItems = MenuItem::where('is_active', true)
-            ->select('id', 'name', 'slug', 'base_price', 'category_id')
-            ->with(['media', 'category:id,name'])
-            ->get();
+        $allItems = MenuItem::with(['category:id,name', 'variants', 'modifierGroups.items'])
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'description', 'image_url', 'base_price', 'category_id', 'is_featured', 'is_active', 'prep_time_minutes']);
 
         return view('admin.pos.index', compact(
             'categories',
@@ -63,7 +63,7 @@ class PosOrderController extends Controller
         $query = $request->get('q', '');
         $categoryId = $request->get('category_id');
 
-        $products = MenuItem::with(['media', 'category', 'modifierGroups.modifierItems'])
+        $products = MenuItem::with(['category', 'modifierGroups.items'])
             ->where('is_active', true)
             ->when($query, fn ($q) => $q->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")

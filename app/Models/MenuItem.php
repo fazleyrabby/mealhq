@@ -9,12 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-
-class MenuItem extends Model implements HasMedia
+class MenuItem extends Model
 {
-    use HasFactory, InteractsWithMedia, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -81,13 +78,6 @@ class MenuItem extends Model implements HasMedia
             $q->where('channel_visibility', 'all')
                 ->orWhere('channel_visibility', $channel);
         });
-    }
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('menu_item_image')
-            ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 
     protected static function booted(): void

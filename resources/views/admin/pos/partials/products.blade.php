@@ -1,7 +1,7 @@
 @foreach($products as $item)
-    <div class="product-card position-relative @if(!$item->is_active) out-of-stock @endif" data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->base_price }}" data-image="{{ $item->getFirstMediaUrl('menu_image') ?: '/placeholder.svg' }}">
+    <div class="product-card position-relative @if(!$item->is_active) out-of-stock @endif" data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->base_price }}" data-image="{{ $item->image_url ?: '/placeholder.svg' }}">
         <div class="position-relative">
-            <img src="{{ $item->getFirstMediaUrl('menu_image') ?: '/placeholder.svg' }}" alt="{{ $item->name }}" class="product-img" loading="lazy">
+            <img src="{{ $item->image_url ?: '/placeholder.svg' }}" alt="{{ $item->name }}" class="product-img" loading="lazy">
             @if($item->is_featured)
                 <span class="product-badge" style="background:#ff9800;color:#000">Featured</span>
             @endif
