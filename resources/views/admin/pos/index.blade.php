@@ -6,43 +6,42 @@
 <style>
     [x-cloak] { display: none !important; }
     .pos-wrapper { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1040; display: flex; padding-left: 15rem; }
-    .pos-categories { width: 250px; min-width: 250px; background: #1a1d21; border-right: 1px solid #2a2d31; display: flex; flex-direction: column; height: 100vh; }
-    .pos-products { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100vh; }
-    .pos-cart { width: 380px; min-width: 380px; background: #1a1d21; border-left: 1px solid #2a2d31; display: flex; flex-direction: column; height: 100vh; }
-    .cat-btn { display: flex; align-items: center; gap: .5rem; padding: .625rem 1rem; border: none; background: transparent; color: #9ba0a6; width: 100%; text-align: left; border-radius: 0; font-size: .875rem; cursor: pointer; }
-    .cat-btn:hover { background: rgba(255,255,255,.05); color: #fff; }
+    .pos-categories { width: 250px; min-width: 250px; background: #f8f9fa; border-right: 1px solid #e9ecef; display: flex; flex-direction: column; height: 100vh; }
+    .pos-products { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100vh; background: #fff; }
+    .pos-cart { width: 380px; min-width: 380px; background: #f8f9fa; border-left: 1px solid #e9ecef; display: flex; flex-direction: column; height: 100vh; }
+    .cat-btn { display: flex; align-items: center; gap: .5rem; padding: .625rem 1rem; border: none; background: transparent; color: #495057; width: 100%; text-align: left; border-radius: 0; font-size: .875rem; cursor: pointer; }
+    .cat-btn:hover { background: rgba(0,0,0,.03); color: #1a1d21; }
     .cat-btn.active, .cat-btn.active:hover { background: var(--tblr-primary, #206bc4); color: #fff; }
     .cat-count { margin-left: auto; font-size: .75rem; opacity: .6; }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .75rem; padding: 1rem; align-content: start; }
-    .product-card { background: #1a1d21; border: 1px solid #2a2d31; border-radius: .5rem; overflow: hidden; cursor: pointer; transition: border-color .15s, transform .15s; }
-    .product-card:hover { border-color: var(--tblr-primary, #206bc4); transform: translateY(-1px); }
+    .product-card { background: #fff; border: 1px solid #e9ecef; border-radius: .5rem; overflow: hidden; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+    .product-card:hover { border-color: var(--tblr-primary, #206bc4); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
     .product-card.out-of-stock { opacity: .5; pointer-events: none; }
-    .product-img { width: 100%; height: 110px; object-fit: cover; background: #2a2d31; display: block; }
+    .product-img { width: 100%; height: 110px; object-fit: cover; background: #f0f0f0; display: block; }
     .qty-badge { position: absolute; top: .375rem; right: .375rem; background: var(--tblr-primary, #206bc4); color: #fff; width: 1.375rem; height: 1.375rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .6875rem; font-weight: 700; }
-    .cart-item { padding: .625rem 1rem; border-bottom: 1px solid #2a2d31; }
+    .cart-item { padding: .625rem 1rem; border-bottom: 1px solid #e9ecef; }
     .cart-body { flex: 1; overflow-y: auto; }
     .btn-qty { width: 1.75rem; height: 1.75rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: .8125rem; line-height: 1; }
-    .tab-btn { padding: .375rem .75rem; border: 1px solid transparent; background: transparent; color: #9ba0a6; font-size: .8125rem; border-radius: .375rem; cursor: pointer; }
-    .tab-btn:hover { border-color: #3a3d41; color: #fff; }
+    .tab-btn { padding: .375rem .75rem; border: 1px solid transparent; background: transparent; color: #6c757d; font-size: .8125rem; border-radius: .375rem; cursor: pointer; }
+    .tab-btn:hover { border-color: #dee2e6; color: #1a1d21; }
     .tab-btn.active { background: var(--tblr-primary, #206bc4); color: #fff; border-color: var(--tblr-primary, #206bc4); }
-    .search-input { background: #2a2d31; border: 1px solid #3a3d41; color: #fff; border-radius: .375rem; padding: .4375rem .75rem; font-size: .875rem; width: 100%; outline: none; }
-    .search-input:focus { border-color: var(--tblr-primary, #206bc4); }
-    .search-input::placeholder { color: #6c757d; }
-    .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1055; display: flex; align-items: center; justify-content: center; }
-    .modal-panel { background: #1a1d21; border: 1px solid #333; border-radius: .75rem; max-height: 90vh; overflow-y: auto; width: 100%; }
-    .table-btn { padding: .375rem .5rem; border: 1px solid #2a2d31; border-radius: .375rem; background: transparent; color: #9ba0a6; text-align: center; font-size: .75rem; cursor: pointer; min-width: 2.5rem; }
-    .table-btn:hover { border-color: var(--tblr-primary, #206bc4); color: #fff; }
+    .search-input { background: #fff; border: 1px solid #ced4da; color: #1a1d21; border-radius: .375rem; padding: .4375rem .75rem; font-size: .875rem; width: 100%; outline: none; }
+    .search-input:focus { border-color: var(--tblr-primary, #206bc4); box-shadow: 0 0 0 2px rgba(32,107,196,.15); }
+    .search-input::placeholder { color: #adb5bd; }
+    .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1055; display: flex; align-items: center; justify-content: center; }
+    .modal-panel { background: #fff; border: 1px solid #dee2e6; border-radius: .75rem; max-height: 90vh; overflow-y: auto; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.15); }
+    .table-btn { padding: .375rem .5rem; border: 1px solid #dee2e6; border-radius: .375rem; background: #fff; color: #495057; text-align: center; font-size: .75rem; cursor: pointer; min-width: 2.5rem; }
+    .table-btn:hover { border-color: var(--tblr-primary, #206bc4); color: var(--tblr-primary, #206bc4); }
     .table-btn.occupied { border-color: #e53935; color: #e53935; }
     .table-btn.selected { background: var(--tblr-primary, #206bc4); color: #fff; border-color: var(--tblr-primary, #206bc4); }
     .table-btn.reserved { border-color: #ff9800; color: #ff9800; }
-    .customer-row { padding: .5rem .75rem; cursor: pointer; border-radius: .375rem; }
-    .customer-row:hover { background: rgba(255,255,255,.05); }
+    .customer-row { padding: .5rem .75rem; cursor: pointer; border-radius: .375rem; color: #495057; }
+    .customer-row:hover { background: rgba(0,0,0,.03); }
     .pos-scroll { overflow-y: auto; }
     .pos-scroll::-webkit-scrollbar { width: 6px; }
     .pos-scroll::-webkit-scrollbar-track { background: transparent; }
-    .pos-scroll::-webkit-scrollbar-thumb { background: #3a3d41; border-radius: 3px; }
-    .badge-dot { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; margin-right: .375rem; }
-    .text-muted-light { color: #9ba0a6; }
+    .pos-scroll::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 3px; }
+    .text-muted-light { color: #6c757d; }
 </style>
 @endpush
 
@@ -51,7 +50,7 @@
 
     {{-- ======================== LEFT: CATEGORIES ======================== --}}
     <aside class="pos-categories d-none d-lg-flex flex-column">
-        <div class="p-2 border-bottom border-dark border-opacity-25">
+        <div class="p-2 border-bottom border-light">
             <input type="text" class="search-input" placeholder="Search categories..." x-model="categorySearch">
         </div>
         <div class="flex-fill pos-scroll py-2">
@@ -68,7 +67,7 @@
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01"/><path d="M4 5h16v4l-3 4-3-4 3-4"/><path d="M4 13h16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2z"/></svg>
                 <span>Best Sellers</span>
             </button>
-            <hr class="my-2 border-dark border-opacity-25">
+            <hr class="my-2">
             <template x-for="cat in filteredCategories" :key="cat.id">
                 <button class="cat-btn" :class="{ active: activeCategory == cat.id }" @click="activeCategory = cat.id; filterProducts()">
                     <span x-text="cat.name"></span>
@@ -80,25 +79,25 @@
 
     {{-- ======================== CENTER: PRODUCTS ======================== --}}
     <main class="pos-products">
-        <div class="px-3 py-2 border-bottom border-dark border-opacity-25 d-flex align-items-center gap-2">
+        <div class="px-3 py-2 border-bottom border-light d-flex align-items-center gap-2 bg-white">
             <div class="position-relative flex-fill">
-                <svg class="position-absolute top-50 translate-middle-y ms-2" width="16" height="16" fill="none" stroke="#9ba0a6" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <svg class="position-absolute top-50 translate-middle-y ms-2" width="16" height="16" fill="none" stroke="#adb5bd" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 <input type="text" class="search-input ps-4" placeholder="Search products... (F2)" x-model="searchQuery" @input.debounce.300ms="filterProducts()" id="pos-search">
             </div>
         </div>
         <div class="flex-fill pos-scroll" id="products-container">
             <div class="product-grid">
                 <template x-for="item in products" :key="item.id">
-                    <div class="product-card position-relative" @click="openItemModal(item)">
+                    <div class="product-card" @click="openItemModal(item)">
                         <div class="position-relative">
-                            <img :src="item.image_url || 'https://placehold.co/300x200/2a2d31/9ba0a6?text=' + encodeURIComponent(item.name[0])" :alt="item.name" class="product-img" loading="lazy">
+                            <img :src="item.image_url || 'https://placehold.co/300x200/f0f0f0/9ba0a6?text=' + encodeURIComponent(item.name[0])" :alt="item.name" class="product-img" loading="lazy">
                             <div x-show="item.qty > 0" class="qty-badge" x-text="item.qty"></div>
                         </div>
                         <div class="p-2">
-                            <div class="fw-semibold text-truncate" style="color:#e8eaed;font-size:.875rem" x-text="item.name"></div>
+                            <div class="fw-semibold text-truncate" style="font-size:.875rem;color:#1a1d21" x-text="item.name"></div>
                             <div class="text-muted small text-truncate" style="font-size:.75rem" x-text="item.category_name"></div>
                             <div class="d-flex align-items-center justify-content-between mt-1">
-                                <span style="color:#e8eaed;font-weight:600;font-size:.875rem">$<span x-text="Number(item.base_price).toFixed(2)"></span></span>
+                                <span style="font-weight:600;font-size:.875rem;color:#1a1d21">$<span x-text="Number(item.base_price).toFixed(2)"></span></span>
                                 <button class="btn btn-sm btn-primary rounded-circle" style="width:1.625rem;height:1.625rem;padding:0;font-size:.8125rem;line-height:1" @click.stop="quickAdd(item)" title="Add">
                                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
                                 </button>
@@ -114,7 +113,7 @@
     {{-- ======================== RIGHT: CART ======================== --}}
     <aside class="pos-cart d-none d-lg-flex flex-column">
         {{-- Order Header --}}
-        <div class="px-3 py-2 border-bottom border-dark border-opacity-25">
+        <div class="px-3 py-2 border-bottom border-light bg-white">
             <div class="d-flex gap-1 mb-2 flex-wrap">
                 <template x-for="t in ['dine_in','takeaway','delivery']" :key="t">
                     <button class="tab-btn" :class="{ active: orderType == t }" @click="orderType = t" x-text="t.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase())"></button>
@@ -127,7 +126,7 @@
                         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="ms-1"><path d="m6 9 6 6 6-6"/></svg>
                     </button>
                     <template x-if="showTablePicker">
-                        <div class="mt-1 p-2 border border-dark border-opacity-25 rounded pos-scroll" style="max-height:10rem">
+                        <div class="mt-1 p-2 border rounded pos-scroll" style="max-height:10rem;background:#fff">
                             <template x-for="(tables, zone) in tableMap" :key="zone">
                                 <div class="mb-1">
                                     <div class="small text-muted-light mb-1" x-text="zone"></div>
@@ -146,7 +145,7 @@
                 <div class="position-relative">
                     <input type="text" class="search-input" placeholder="Search customer... (F3)" x-model="customerQuery" @input.debounce.300ms="searchCustomers" @keydown.escape="customerResults = []">
                     <template x-if="customerResults.length">
-                        <div class="position-absolute top-100 start-0 end-0 mt-1 border border-dark border-opacity-25 rounded" style="background:#1a1d21;z-index:20;max-height:10rem;overflow-y:auto">
+                        <div class="position-absolute top-100 start-0 end-0 mt-1 border rounded" style="background:#fff;z-index:20;max-height:10rem;overflow-y:auto">
                             <template x-for="c in customerResults" :key="c.id">
                                 <div class="customer-row d-flex align-items-center gap-2" @click="selectCustomer(c)">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-8 8-8s8 4 8 8"/></svg>
@@ -161,19 +160,19 @@
                 </div>
                 <div x-show="selectedCustomer" class="d-flex align-items-center gap-1 mt-1 small text-muted-light">
                     <span x-text="selectedCustomer.name"></span>
-                    <button class="btn btn-sm p-0 ms-auto text-muted" @click="selectedCustomer = null; customerQuery = ''">&times;</button>
+                    <button class="btn btn-sm p-0 ms-auto text-muted border-0 bg-transparent" @click="selectedCustomer = null; customerQuery = ''">&times;</button>
                 </div>
             </div>
         </div>
 
         {{-- Cart Items --}}
-        <div class="cart-body pos-scroll">
+        <div class="cart-body pos-scroll bg-white">
             <template x-for="(item, idx) in cart" :key="idx">
                 <div class="cart-item">
                     <div class="d-flex align-items-start gap-2">
-                        <img :src="item.image_url || 'https://placehold.co/40x40/2a2d31/9ba0a6?text=' + encodeURIComponent(item.item_name[0])" class="rounded" style="width:2rem;height:2rem;object-fit:cover;background:#2a2d31;flex-shrink:0" loading="lazy">
+                        <img :src="item.image_url || 'https://placehold.co/40x40/f0f0f0/9ba0a6?text=' + encodeURIComponent(item.item_name[0])" class="rounded" style="width:2rem;height:2rem;object-fit:cover;background:#f0f0f0;flex-shrink:0" loading="lazy">
                         <div class="flex-fill min-w-0">
-                            <div class="fw-semibold text-truncate" style="color:#e8eaed;font-size:.8125rem" x-text="item.item_name"></div>
+                            <div class="fw-semibold text-truncate" style="font-size:.8125rem;color:#1a1d21" x-text="item.item_name"></div>
                             <template x-if="item.variant_name">
                                 <div class="text-muted small" style="font-size:.6875rem" x-text="item.variant_name"></div>
                             </template>
@@ -185,10 +184,10 @@
                     <div class="d-flex align-items-center justify-content-between mt-1">
                         <div class="d-flex align-items-center gap-1">
                             <button class="btn btn-sm btn-outline-secondary btn-qty" @click="updateQty(idx, -1)" :disabled="item.qty <= 1">&minus;</button>
-                            <span class="fw-semibold" style="color:#e8eaed;font-size:.8125rem;min-width:1.25rem;text-align:center" x-text="item.qty"></span>
+                            <span class="fw-semibold" style="font-size:.8125rem;min-width:1.25rem;text-align:center;color:#1a1d21" x-text="item.qty"></span>
                             <button class="btn btn-sm btn-outline-secondary btn-qty" @click="updateQty(idx, 1)">+</button>
                         </div>
-                        <span class="fw-semibold" style="color:#e8eaed;font-size:.8125rem">$<span x-text="itemLineTotal(item).toFixed(2)"></span></span>
+                        <span class="fw-semibold" style="font-size:.8125rem;color:#1a1d21">$<span x-text="itemLineTotal(item).toFixed(2)"></span></span>
                         <button class="btn btn-sm p-0 text-danger border-0 bg-transparent" @click="cart.splice(idx, 1)" style="font-size:1rem">&times;</button>
                     </div>
                 </div>
@@ -197,34 +196,34 @@
         </div>
 
         {{-- Totals --}}
-        <div class="px-3 py-2 border-top border-dark border-opacity-25">
-            <div class="d-flex justify-content-between small mb-1"><span class="text-muted-light">Subtotal</span><span>$<span x-text="subtotal.toFixed(2)"></span></span></div>
-            <div class="d-flex justify-content-between small mb-1"><span class="text-muted-light">Tax (<span x-text="taxRate"></span>%)</span><span>$<span x-text="taxAmount.toFixed(2)"></span></span></div>
-            <div class="d-flex justify-content-between small mb-1"><span class="text-muted-light">Service</span><span>$<span x-text="serviceCharge.toFixed(2)"></span></span></div>
-            <div class="d-flex justify-content-between small mb-1"><span class="text-muted-light">Discount</span><span>-$<span x-text="discountAmount.toFixed(2)"></span></span></div>
-            <hr class="my-1 border-dark border-opacity-25">
-            <div class="d-flex justify-content-between fw-bold" style="color:#e8eaed;font-size:1.125rem"><span>Total</span><span>$<span x-text="grandTotal.toFixed(2)"></span></span></div>
+        <div class="px-3 py-2 border-top border-light bg-white">
+            <div class="d-flex justify-content-between small mb-1"><span class="text-muted-light">Subtotal</span><span style="color:#1a1d21">$<span x-text="subtotal.toFixed(2)"></span></span></div>
+            <div class="d-flex justify-content-between small mb-1"><span class="text-muted-light">Tax (<span x-text="taxRate"></span>%)</span><span style="color:#1a1d21">$<span x-text="taxAmount.toFixed(2)"></span></span></div>
+            <div class="d-flex justify-content-between small mb-1"><span class="text-muted-light">Service</span><span style="color:#1a1d21">$<span x-text="serviceCharge.toFixed(2)"></span></span></div>
+            <div class="d-flex justify-content-between small mb-1"><span class="text-muted-light">Discount</span><span style="color:#e53935">-$<span x-text="discountAmount.toFixed(2)"></span></span></div>
+            <hr class="my-1">
+            <div class="d-flex justify-content-between fw-bold" style="font-size:1.125rem;color:#1a1d21"><span>Total</span><span>$<span x-text="grandTotal.toFixed(2)"></span></span></div>
         </div>
 
         {{-- Discount Input --}}
-        <div class="px-3 py-1">
+        <div class="px-3 py-1 bg-white">
             <template x-if="showDiscount">
                 <div class="input-group input-group-sm mb-1">
-                    <span class="input-group-text bg-dark text-muted border-dark">$</span>
-                    <input type="number" step="0.01" class="form-control form-control-sm bg-dark text-light border-dark" placeholder="Discount" x-model="discountAmount" min="0" :max="subtotal">
+                    <span class="input-group-text">$</span>
+                    <input type="number" step="0.01" class="form-control form-control-sm" placeholder="Discount" x-model="discountAmount" min="0" :max="subtotal">
                     <button class="btn btn-sm btn-outline-secondary" @click="showDiscount = false">Apply</button>
                 </div>
             </template>
         </div>
 
         {{-- Action Buttons --}}
-        <div class="px-3 py-1 d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary flex-fill" @click="showDiscount = !showDiscount">Discount</button>
+        <div class="px-3 py-1 d-flex gap-2 bg-white">
+            <button class="btn btn-sm btn-outline-secondary flex-fill" @click="showDiscount = !showDiscount">Discount (F5)</button>
             <button class="btn btn-sm btn-outline-secondary flex-fill" @click="clearCart">Clear</button>
         </div>
 
         {{-- Payment Button --}}
-        <div class="px-3 py-2 mt-auto">
+        <div class="px-3 py-2 mt-auto bg-white">
             <button class="btn btn-lg w-100" :class="cart.length ? 'btn-primary' : 'btn-secondary'" :disabled="!cart.length" @click="openPaymentModal()">
                 <span class="fw-bold">Place Order</span>
                 <span class="ms-2">$<span x-text="grandTotal.toFixed(2)"></span></span>
@@ -236,10 +235,10 @@
     <template x-if="showModifierModal && selectedItem">
         <div class="modal-mask" @click.self="closeModifierModal">
             <div class="modal-panel" style="max-width:24rem">
-                <div class="px-3 py-2 border-bottom border-dark border-opacity-25 d-flex align-items-center gap-2">
-                    <img :src="selectedItem.image_url || 'https://placehold.co/64x64/2a2d31/9ba0a6?text=' + encodeURIComponent(selectedItem.name[0])" class="rounded" style="width:3.5rem;height:3.5rem;object-fit:cover;background:#2a2d31;flex-shrink:0">
+                <div class="px-3 py-2 border-bottom d-flex align-items-center gap-2">
+                    <img :src="selectedItem.image_url || 'https://placehold.co/64x64/f0f0f0/9ba0a6?text=' + encodeURIComponent(selectedItem.name[0])" class="rounded" style="width:3.5rem;height:3.5rem;object-fit:cover;background:#f0f0f0;flex-shrink:0">
                     <div class="flex-fill">
-                        <div class="fw-semibold" style="color:#e8eaed" x-text="selectedItem.name"></div>
+                        <div class="fw-semibold" style="color:#1a1d21" x-text="selectedItem.name"></div>
                         <div class="text-muted small">$<span x-text="Number(selectedItem.base_price).toFixed(2)"></span></div>
                     </div>
                     <button class="btn btn-sm btn-ghost-dark" @click="closeModifierModal" style="font-size:1.25rem">&times;</button>
@@ -247,9 +246,9 @@
                 <div class="p-3" style="max-height:50vh;overflow-y:auto">
                     <template x-if="selectedItem.variants?.length">
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-muted-light">Variant</label>
+                            <label class="form-label small fw-semibold">Variant</label>
                             <template x-for="v in selectedItem.variants" :key="v.id">
-                                <label class="d-flex align-items-center gap-2 px-2 py-1 rounded cursor-pointer" style="cursor:pointer" :class="{ 'bg-dark': selectedVariant?.id == v.id }">
+                                <label class="d-flex align-items-center gap-2 px-2 py-1 rounded" style="cursor:pointer" :class="{ 'bg-light': selectedVariant?.id == v.id }">
                                     <input type="radio" :value="v.id" :checked="selectedVariant?.id == v.id" @change="selectedVariant = v" name="variant" class="form-check-input">
                                     <span class="small" x-text="v.name"></span>
                                     <span x-show="v.price_adjustment" class="ms-auto text-muted small" x-text="(v.price_adjustment > 0 ? '+' : '') + Number(v.price_adjustment).toFixed(2)"></span>
@@ -259,12 +258,12 @@
                     </template>
                     <template x-for="group in modifierGroups" :key="group.id">
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-muted-light">
+                            <label class="form-label small fw-semibold">
                                 <span x-text="group.name"></span>
                                 <span x-show="group.min_selections > 0" class="text-danger"> *</span>
                             </label>
                             <template x-for="mi in group.items" :key="mi.id">
-                                <label class="d-flex align-items-center gap-2 px-2 py-1 rounded" style="cursor:pointer" :class="{ 'bg-dark': isModifierSelected(group.id, mi.id) }">
+                                <label class="d-flex align-items-center gap-2 px-2 py-1 rounded" style="cursor:pointer" :class="{ 'bg-light': isModifierSelected(group.id, mi.id) }">
                                     <template x-if="group.type == 'select_one' || group.type == 'required_one'">
                                         <input type="radio" :name="'mod_' + group.id" :value="mi.id" :checked="isModifierSelected(group.id, mi.id)" @change="toggleModifier(group, mi, true)" class="form-check-input">
                                     </template>
@@ -278,18 +277,18 @@
                         </div>
                     </template>
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted-light">Special Instructions</label>
-                        <textarea class="form-control form-control-sm bg-dark text-light border-dark" rows="2" x-model="specialInstructions" placeholder="Any special requests..."></textarea>
+                        <label class="form-label small fw-semibold">Special Instructions</label>
+                        <textarea class="form-control form-control-sm" rows="2" x-model="specialInstructions" placeholder="Any special requests..."></textarea>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <label class="form-label small fw-semibold text-muted-light mb-0">Qty</label>
+                        <label class="form-label small fw-semibold mb-0">Qty</label>
                         <button class="btn btn-sm btn-outline-secondary btn-qty" @click="itemQty = Math.max(1, itemQty - 1)">&minus;</button>
-                        <span class="fw-bold" style="color:#e8eaed;min-width:1.5rem;text-align:center" x-text="itemQty"></span>
+                        <span class="fw-bold" style="min-width:1.5rem;text-align:center;color:#1a1d21" x-text="itemQty"></span>
                         <button class="btn btn-sm btn-outline-secondary btn-qty" @click="itemQty++">+</button>
-                        <span class="ms-auto fw-bold" style="color:#e8eaed">$<span x-text="modifierTotalPrice.toFixed(2)"></span></span>
+                        <span class="ms-auto fw-bold" style="color:#1a1d21">$<span x-text="modifierTotalPrice.toFixed(2)"></span></span>
                     </div>
                 </div>
-                <div class="px-3 py-2 border-top border-dark border-opacity-25 d-flex gap-2">
+                <div class="px-3 py-2 border-top d-flex gap-2">
                     <button class="btn btn-secondary flex-fill" @click="closeModifierModal">Cancel</button>
                     <button class="btn btn-primary flex-fill" @click="addToCart">Add to Order</button>
                 </div>
@@ -301,17 +300,17 @@
     <template x-if="showPaymentModal">
         <div class="modal-mask" @click.self="showPaymentModal = false">
             <div class="modal-panel" style="max-width:28rem">
-                <div class="px-3 py-2 border-bottom border-dark border-opacity-25 d-flex align-items-center">
+                <div class="px-3 py-2 border-bottom d-flex align-items-center">
                     <h5 class="mb-0" style="font-size:1rem">Complete Order</h5>
                     <button class="btn btn-sm ms-auto" @click="showPaymentModal = false" style="font-size:1.25rem">&times;</button>
                 </div>
                 <div class="p-3">
                     <div class="mb-3 text-center">
                         <div class="text-muted small">Grand Total</div>
-                        <div class="fw-bold" style="font-size:1.75rem;color:#e8eaed">$<span x-text="grandTotal.toFixed(2)"></span></div>
+                        <div class="fw-bold" style="font-size:1.75rem;color:#1a1d21">$<span x-text="grandTotal.toFixed(2)"></span></div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted-light">Payment Method</label>
+                        <label class="form-label small fw-semibold">Payment Method</label>
                         <div class="d-flex flex-wrap gap-1">
                             <template x-for="method in ['Cash', 'Card', 'bKash', 'Nagad', 'SSLCommerz']" :key="method">
                                 <button class="btn btn-sm" :class="paymentMethod == method ? 'btn-primary' : 'btn-outline-secondary'" @click="paymentMethod = method" x-text="method"></button>
@@ -320,10 +319,10 @@
                     </div>
                     <template x-if="paymentMethod == 'Cash'">
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-muted-light">Amount Received</label>
+                            <label class="form-label small fw-semibold">Amount Received</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-dark text-muted border-dark">$</span>
-                                <input type="number" step="0.01" class="form-control bg-dark text-light border-dark" x-model="amountReceived" min="0">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" class="form-control" x-model="amountReceived" min="0">
                             </div>
                             <div x-show="amountReceived >= grandTotal" class="mt-1 text-success small fw-semibold">
                                 Change: $<span x-text="(amountReceived - grandTotal).toFixed(2)"></span>
@@ -366,7 +365,6 @@
 <script>
 function posApp() {
     return {
-        // Data from server
         categories: {{ Js::from($categories->toArray()) }},
         allProducts: {{ Js::from($allItems->toArray()) }},
         modifierGroupsData: {{ Js::from($modifierGroups->toArray()) }},
@@ -374,14 +372,11 @@ function posApp() {
         taxRates: {{ Js::from([['rate' => $taxRate?->rate ?? 0]]) }},
         serviceChargeRate: {{ $serviceChargeRate }},
 
-        // State
         activeCategory: null,
         categorySearch: '',
         searchQuery: '',
         products: [],
-        loading: false,
 
-        // Cart
         cart: [],
         orderType: 'dine_in',
         selectedTable: null,
@@ -392,7 +387,6 @@ function posApp() {
         discountAmount: 0,
         showDiscount: false,
 
-        // Modifier Modal
         showModifierModal: false,
         selectedItem: null,
         selectedVariant: null,
@@ -400,20 +394,16 @@ function posApp() {
         specialInstructions: '',
         itemQty: 1,
 
-        // Payment Modal
         showPaymentModal: false,
         paymentMethod: 'Cash',
         amountReceived: 0,
-        change: 0,
         printReceipt: true,
         sendToKitchen: true,
         submitting: false,
 
-        // Success toast
         showSuccess: false,
         successMessage: '',
 
-        // --- Computed ---
         get taxRate() { return this.taxRates[0]?.rate || 0; },
         get filteredCategories() {
             if (!this.categorySearch) return this.categories;
@@ -446,7 +436,6 @@ function posApp() {
             this.filterProducts();
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'F2') { e.preventDefault(); document.getElementById('pos-search')?.focus(); }
-                if (e.key === 'F3') { e.preventDefault(); document.querySelector('[x-model=\"customerQuery\"]')?.focus(); }
                 if (e.key === 'F4') { e.preventDefault(); this.showTablePicker = !this.showTablePicker; }
                 if (e.key === 'F5') { e.preventDefault(); this.showDiscount = !this.showDiscount; }
                 if (e.key === 'F8') { e.preventDefault(); if (this.cart.length) this.openPaymentModal(); }
@@ -461,12 +450,8 @@ function posApp() {
             if (this.activeCategory && !['favorites','bestsellers'].includes(this.activeCategory)) {
                 items = items.filter(i => String(i.category_id) === String(this.activeCategory));
             }
-            if (this.activeCategory === 'favorites') {
-                items = items.filter(i => i.is_featured);
-            }
-            if (this.activeCategory === 'bestsellers') {
-                items = [...items].sort(() => Math.random() - 0.5).slice(0, 20);
-            }
+            if (this.activeCategory === 'favorites') items = items.filter(i => i.is_featured);
+            if (this.activeCategory === 'bestsellers') items = [...items].sort(() => Math.random() - 0.5).slice(0, 20);
             this.products = items.map(i => {
                 const ci = this.cart.find(c => c.menu_item_id === i.id);
                 return { ...i, qty: ci?.qty || 0, category_name: i.category?.name || '' };
@@ -479,19 +464,13 @@ function posApp() {
                 return;
             }
             const existing = this.cart.find(i => i.menu_item_id === item.id && !i.variant_name && !i.modifiers.length);
-            if (existing) {
-                existing.qty++;
-            } else {
+            if (existing) { existing.qty++; }
+            else {
                 this.cart.push({
-                    menu_item_id: item.id,
-                    menu_item_variant_id: null,
-                    item_name: item.name,
-                    variant_name: null,
-                    unit_price: Number(item.base_price),
-                    qty: 1,
-                    modifiers: [],
-                    special_instructions: '',
-                    image_url: item.image_url || null,
+                    menu_item_id: item.id, menu_item_variant_id: null,
+                    item_name: item.name, variant_name: null,
+                    unit_price: Number(item.base_price), qty: 1,
+                    modifiers: [], special_instructions: '', image_url: item.image_url || null,
                 });
             }
             this.filterProducts();
@@ -511,143 +490,89 @@ function posApp() {
         clearCart() {
             if (!this.cart.length) return;
             if (!confirm('Clear all items?')) return;
-            this.cart = [];
-            this.selectedTable = null;
-            this.selectedCustomer = null;
-            this.discountAmount = 0;
-            this.filterProducts();
+            this.cart = []; this.selectedTable = null; this.selectedCustomer = null;
+            this.discountAmount = 0; this.filterProducts();
         },
 
         searchCustomers() {
             if (!this.customerQuery.trim()) { this.customerResults = []; return; }
             fetch('/admin/pos/customers?q=' + encodeURIComponent(this.customerQuery))
-                .then(r => r.json())
-                .then(data => { this.customerResults = data; })
+                .then(r => r.json()).then(data => { this.customerResults = data; })
                 .catch(() => { this.customerResults = []; });
         },
 
-        selectCustomer(c) {
-            this.selectedCustomer = c;
-            this.customerQuery = '';
-            this.customerResults = [];
-        },
-
-        selectTable(t) {
-            this.selectedTable = this.selectedTable?.id === t.id ? null : t;
-        },
+        selectCustomer(c) { this.selectedCustomer = c; this.customerQuery = ''; this.customerResults = []; },
+        selectTable(t) { this.selectedTable = this.selectedTable?.id === t.id ? null : t; },
 
         openItemModal(item) {
-            this.selectedItem = item;
-            this.selectedVariant = null;
-            this.selectedModifiers = new Map();
-            this.specialInstructions = '';
-            this.itemQty = 1;
-            this.showModifierModal = true;
+            this.selectedItem = item; this.selectedVariant = null;
+            this.selectedModifiers = new Map(); this.specialInstructions = '';
+            this.itemQty = 1; this.showModifierModal = true;
         },
 
-        closeModifierModal() {
-            this.showModifierModal = false;
-            this.selectedItem = null;
-        },
+        closeModifierModal() { this.showModifierModal = false; this.selectedItem = null; },
 
         toggleModifier(group, mi, isRadio) {
             const key = group.id + '_' + mi.id;
             if (isRadio) {
-                for (const k of this.selectedModifiers.keys()) {
-                    if (k.startsWith(group.id + '_')) this.selectedModifiers.delete(k);
-                }
+                for (const k of this.selectedModifiers.keys()) { if (k.startsWith(group.id + '_')) this.selectedModifiers.delete(k); }
                 this.selectedModifiers.set(key, { ...mi, group_name: group.name });
             } else {
-                if (this.selectedModifiers.has(key)) {
-                    this.selectedModifiers.delete(key);
-                } else {
-                    if (this.selectedModifiers.size >= (group.max_selections || 99)) return;
-                    this.selectedModifiers.set(key, { ...mi, group_name: group.name });
-                }
+                if (this.selectedModifiers.has(key)) this.selectedModifiers.delete(key);
+                else if (this.selectedModifiers.size < (group.max_selections || 99)) this.selectedModifiers.set(key, { ...mi, group_name: group.name });
             }
             this.selectedModifiers = new Map(this.selectedModifiers);
         },
 
-        isModifierSelected(groupId, itemId) {
-            return this.selectedModifiers.has(groupId + '_' + itemId);
-        },
+        isModifierSelected(groupId, itemId) { return this.selectedModifiers.has(groupId + '_' + itemId); },
 
         addToCart() {
             if (!this.selectedItem) return;
             const mods = [];
-            this.selectedModifiers.forEach(m => {
-                mods.push({ group_name: m.group_name, item_name: m.name, price_adjustment: Number(m.price_adjustment || 0) });
-            });
+            this.selectedModifiers.forEach(m => mods.push({ group_name: m.group_name, item_name: m.name, price_adjustment: Number(m.price_adjustment || 0) }));
             const vAdj = this.selectedVariant ? Number(this.selectedVariant.price_adjustment || 0) : 0;
-            const basePrice = Number(this.selectedItem.base_price) + vAdj;
-
             this.cart.push({
-                menu_item_id: this.selectedItem.id,
-                menu_item_variant_id: this.selectedVariant?.id || null,
-                item_name: this.selectedItem.name,
-                variant_name: this.selectedVariant?.name || null,
-                unit_price: basePrice,
-                qty: this.itemQty,
-                modifiers: mods,
-                special_instructions: this.specialInstructions,
+                menu_item_id: this.selectedItem.id, menu_item_variant_id: this.selectedVariant?.id || null,
+                item_name: this.selectedItem.name, variant_name: this.selectedVariant?.name || null,
+                unit_price: Number(this.selectedItem.base_price) + vAdj, qty: this.itemQty,
+                modifiers: mods, special_instructions: this.specialInstructions,
                 image_url: this.selectedItem.image_url || null,
             });
-            this.closeModifierModal();
-            this.filterProducts();
+            this.closeModifierModal(); this.filterProducts();
         },
 
-        openPaymentModal() {
-            this.paymentMethod = 'Cash';
-            this.amountReceived = this.grandTotal;
-            this.showPaymentModal = true;
-        },
+        openPaymentModal() { this.paymentMethod = 'Cash'; this.amountReceived = this.grandTotal; this.showPaymentModal = true; },
 
         submitOrder() {
             if (this.submitting || !this.cart.length) return;
             this.submitting = true;
-
             fetch('/admin/pos/order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
                 body: JSON.stringify({
                     items: this.cart.map(i => ({
-                        menu_item_id: i.menu_item_id,
-                        menu_item_variant_id: i.menu_item_variant_id,
-                        item_name: i.item_name,
-                        variant_name: i.variant_name,
-                        unit_price: i.unit_price,
-                        quantity: i.qty,
-                        special_instructions: i.special_instructions,
-                        modifiers: i.modifiers || [],
+                        menu_item_id: i.menu_item_id, menu_item_variant_id: i.menu_item_variant_id,
+                        item_name: i.item_name, variant_name: i.variant_name,
+                        unit_price: i.unit_price, quantity: i.qty,
+                        special_instructions: i.special_instructions, modifiers: i.modifiers || [],
                     })),
                     customer_id: this.selectedCustomer?.id || null,
                     table_session_id: this.selectedTable?.id || null,
-                    type: this.orderType,
-                    source: 'pos',
-                    notes: '',
+                    type: this.orderType, source: 'pos', notes: '',
                     discount_amount: this.discountAmount,
                 }),
             })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    this.successMessage = data.message;
-                    this.showSuccess = true;
-                    this.cart = [];
-                    this.selectedTable = null;
-                    this.selectedCustomer = null;
-                    this.discountAmount = 0;
-                    this.showPaymentModal = false;
+                    this.successMessage = data.message; this.showSuccess = true;
+                    this.cart = []; this.selectedTable = null; this.selectedCustomer = null;
+                    this.discountAmount = 0; this.showPaymentModal = false;
                     this.filterProducts();
                     setTimeout(() => { this.showSuccess = false; }, 4000);
-                } else {
-                    alert(data.message || 'Error placing order');
-                }
+                } else { alert(data.message || 'Error'); }
             })
-            .catch(err => {
-                console.error(err);
-                alert('Error placing order');
-            })
+            .catch(err => { console.error(err); alert('Error placing order'); })
             .finally(() => { this.submitting = false; });
         },
     };
