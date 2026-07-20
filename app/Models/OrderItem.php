@@ -28,6 +28,11 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class, 'order_id');
     }
 
+    public function menuItem(): BelongsTo
+    {
+        return $this->belongsTo(MenuItem::class, 'menu_item_id');
+    }
+
     public function modifiers(): HasMany
     {
         return $this->hasMany(OrderItemModifier::class, 'order_item_id');
