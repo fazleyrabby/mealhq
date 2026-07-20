@@ -16,22 +16,22 @@
                             <td>{{ $item->item_name }}</td>
                             <td>{{ $item->variant_name ?? '-' }}</td>
                             <td>{{ $item->quantity }}</td>
-                            <td>\${{ number_format($item->unit_price, 2) }}</td>
+                            <td>${{ number_format($item->unit_price, 2) }}</td>
                             <td>
                                 @foreach($item->modifiers as $mod)
                                 <span class="badge bg-secondary">{{ $mod->modifier_item_name }} (+${{ number_format($mod->price_adjustment, 2) }})</span>
                                 @endforeach
                             </td>
-                            <td>\${{ number_format($item->subtotal, 2) }}</td>
+                            <td>${{ number_format($item->subtotal, 2) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
-                        <tr><th colspan="5" class="text-end">Subtotal</th><th>\${{ number_format($order->subtotal, 2) }}</th></tr>
-                        <tr><td colspan="5" class="text-end">Tax</td><td>\${{ number_format($order->tax_amount, 2) }}</td></tr>
-                        <tr><td colspan="5" class="text-end">Service Charge</td><td>\${{ number_format($order->service_charge, 2) }}</td></tr>
-                        <tr><td colspan="5" class="text-end">Discount</td><td>-\${{ number_format($order->discount_amount, 2) }}</td></tr>
-                        <tr><th colspan="5" class="text-end">Total</th><th>\${{ number_format($order->total_amount, 2) }}</th></tr>
+                        <tr><th colspan="5" class="text-end">Subtotal</th><th>${{ number_format($order->subtotal, 2) }}</th></tr>
+                        <tr><td colspan="5" class="text-end">Tax</td><td>${{ number_format($order->tax_amount, 2) }}</td></tr>
+                        <tr><td colspan="5" class="text-end">Service Charge</td><td>${{ number_format($order->service_charge, 2) }}</td></tr>
+                        <tr><td colspan="5" class="text-end">Discount</td><td>-${{ number_format($order->discount_amount, 2) }}</td></tr>
+                        <tr><th colspan="5" class="text-end">Total</th><th>${{ number_format($order->total_amount, 2) }}</th></tr>
                     </tfoot>
                 </table>
             </div>

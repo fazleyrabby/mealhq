@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\KdsStationController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\ModifierGroupController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PosOrderController;
 use App\Http\Controllers\Admin\PosDrawerController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\RecipeController;
@@ -79,6 +80,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Admin Authenticated
     Route::middleware('auth')->group(function () {
+
+        // POS
+        Route::get('pos', [PosOrderController::class, 'index'])->name('pos.index');
+        Route::post('pos/order', [PosOrderController::class, 'store'])->name('pos.store');
+        Route::get('pos/order/{order}', [PosOrderController::class, 'show'])->name('pos.show');
+        Route::get('pos/search', [PosOrderController::class, 'searchProducts'])->name('pos.search');
+        Route::get('pos/customers', [PosOrderController::class, 'searchCustomers'])->name('pos.customers');
+        Route::get('pos/recent', [PosOrderController::class, 'recentOrders'])->name('pos.recent');
         Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/', fn () => redirect()->route('admin.dashboard'));

@@ -107,6 +107,14 @@
                         </li>
 
                         <!-- Orders -->
+                        <li class="nav-item {{ request()->routeIs('admin.pos.*') ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ route('admin.pos.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+                                </span>
+                                <span class="nav-link-title">POS</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                             <a class="nav-link" href="{{ route('admin.orders.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">

@@ -32,7 +32,7 @@
                     <td>{{ $recipe->name }}</td>
                     <td>{{ $recipe->menuItem->name ?? '-' }}</td>
                     <td>{{ $recipe->ingredients->count() }}</td>
-                    <td>\${{ number_format($recipe->ingredients->sum(fn($ri) => $ri->cost * $ri->quantity * (1 + ($ri->waste_percentage ?? 0) / 100)), 4) }}</td>
+                    <td>${{ number_format($recipe->ingredients->sum(fn($ri) => $ri->cost * $ri->quantity * (1 + ($ri->waste_percentage ?? 0) / 100)), 4) }}</td>
                     <td>{{ $recipe->yield_amount }} {{ $recipe->yield_unit ?? 'units' }}</td>
                     <td>{!! $recipe->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
                     <td>

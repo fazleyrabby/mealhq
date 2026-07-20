@@ -51,7 +51,7 @@
                     <td>{{ $ingredient->name }}</td>
                     <td>{{ $ingredient->unit->name ?? '-' }}</td>
                     <td>{{ $ingredient->stock_quantity }} @if($ingredient->low_stock_threshold && $ingredient->stock_quantity <= $ingredient->low_stock_threshold)<span class="badge bg-red ms-1">Low</span>@endif</td>
-                    <td>\${{ number_format($ingredient->cost_per_unit, 4) }}</td>
+                    <td>${{ number_format($ingredient->cost_per_unit, 4) }}</td>
                     <td>{!! $ingredient->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.inventory.ingredients.edit', $ingredient) }}" class="btn btn-sm btn-outline-primary">Edit</a>

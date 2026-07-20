@@ -62,7 +62,7 @@
                 @forelse($group->items as $item)
                 <tr>
                     <td>{{ $item->name }}</td>
-                    <td>\${{ number_format($item->price, 2) }}</td>
+                    <td>${{ number_format($item->price, 2) }}</td>
                     <td>{!! $item->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
                     <td>
                         <form method="POST" action="#" class="d-inline" onsubmit="alert('Coming soon'); return false;">
@@ -85,7 +85,7 @@
             </div>
             <div class="col-md-3">
                 <div class="input-group">
-                    <span class="input-group-text">\$</span>
+                    <span class="input-group-text">$</span>
                     <input type="number" step="0.01" name="price" class="form-control" placeholder="0.00" value="0" required>
                 </div>
             </div>

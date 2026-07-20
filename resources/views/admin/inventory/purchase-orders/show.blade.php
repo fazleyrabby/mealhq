@@ -30,8 +30,8 @@
                 <tr>
                     <td>{{ $item->ingredient->name ?? '-' }}</td>
                     <td>{{ $item->quantity }} {{ $item->ingredient->unit->abbreviation ?? '' }}</td>
-                    <td>\${{ number_format($item->unit_price, 2) }}</td>
-                    <td>\${{ number_format($item->quantity * $item->unit_price, 2) }}</td>
+                    <td>${{ number_format($item->unit_price, 2) }}</td>
+                    <td>${{ number_format($item->quantity * $item->unit_price, 2) }}</td>
                     <td>{{ $item->received_quantity ?? 0 }}</td>
                 </tr>
                 @endforeach
@@ -39,7 +39,7 @@
             <tfoot>
                 <tr class="fw-bold">
                     <td colspan="3" class="text-end">Total:</td>
-                    <td>\${{ number_format($po->items->sum(fn($i) => $i->quantity * $i->unit_price), 2) }}</td>
+                    <td>${{ number_format($po->items->sum(fn($i) => $i->quantity * $i->unit_price), 2) }}</td>
                     <td></td>
                 </tr>
             </tfoot>

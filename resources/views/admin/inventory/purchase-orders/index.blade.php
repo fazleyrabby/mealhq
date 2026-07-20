@@ -30,7 +30,7 @@
                     <td>{{ $po->order_number }}</td>
                     <td>{{ $po->supplier->name ?? '-' }}</td>
                     <td>{{ $po->items->count() }}</td>
-                    <td>\${{ number_format($po->items->sum(fn($i) => $i->quantity * $i->unit_price), 2) }}</td>
+                    <td>${{ number_format($po->items->sum(fn($i) => $i->quantity * $i->unit_price), 2) }}</td>
                     <td><span class="badge bg-{{ ['draft'=>'secondary','ordered'=>'blue','partial'=>'orange','received'=>'green','cancelled'=>'red'][$po->status] ?? 'secondary' }}">{{ ucfirst($po->status) }}</span></td>
                     <td>{{ $po->ordered_at?->format('M d, Y') ?? '-' }}</td>
                     <td>

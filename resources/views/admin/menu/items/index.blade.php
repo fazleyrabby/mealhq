@@ -49,7 +49,7 @@
                 <tr>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->category->name ?? '-' }}</td>
-                    <td>\${{ number_format($item->base_price, 2) }}</td>
+                    <td>${{ number_format($item->base_price, 2) }}</td>
                     <td><span class="badge bg-secondary">{{ str_replace('_', ' ', $item->channel_visibility) }}</span></td>
                     <td>{!! $item->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
                     <td>
