@@ -17,6 +17,8 @@ class HtmlPurifierService
 
         if (self::$purifier === null) {
             $config = HTMLPurifier_Config::createDefault();
+            $config->set('Cache.SerializerPath', storage_path('app/htmlpurifier'));
+            $config->set('Cache.SerializerPermissions', 0775);
             $config->set('HTML.Allowed', 'p,br,b,strong,i,em,u,a[href|title|target|rel],ul,ol,li,blockquote,h1,h2,h3,h4,span,div,img[src|alt|width|height]');
             $config->set('Attr.AllowedRel', ['noopener', 'nofollow']);
             $config->set('HTML.TargetBlank', true);
