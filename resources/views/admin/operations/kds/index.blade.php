@@ -35,7 +35,7 @@
                         <tr>
                             <td>{{ $station->name }}</td>
                             <td>{{ $station->description ?? '-' }}</td>
-                            <td>{!! $station->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                            <td>{!! $station->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                             <td>
                                 <form method="POST" action="{{ route('admin.operations.kds.destroy', $station) }}" class="d-inline" onsubmit="return confirm('Delete station?')">
                                     @csrf @method('DELETE')

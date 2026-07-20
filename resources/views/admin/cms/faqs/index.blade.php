@@ -44,7 +44,7 @@
                 <tr>
                     <td>{{ Str::limit($faq->question, 60) }}</td>
                     <td>{{ $faq->sort_order }}</td>
-                    <td>{!! $faq->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $faq->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.cms.faqs.edit', $faq) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.cms.faqs.destroy', $faq) }}" class="d-inline" onsubmit="return confirm('Delete?')">

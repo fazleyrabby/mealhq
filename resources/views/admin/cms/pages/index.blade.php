@@ -50,7 +50,7 @@
                     <td>{{ $page->title }}</td>
                     <td><code>{{ $page->slug }}</code></td>
                     <td>{{ $page->sections->count() }}</td>
-                    <td>{!! $page->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $page->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.cms.pages.edit', $page) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.cms.pages.destroy', $page) }}" class="d-inline" onsubmit="return confirm('Delete?')">

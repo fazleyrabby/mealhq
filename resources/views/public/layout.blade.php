@@ -46,9 +46,9 @@
                 </div>
 
                 <div class="hidden md:flex items-center gap-4">
-                    <a href="{{ route('login') }}" class="text-sm font-medium transition-colors hover:text-forest-700"
-                       :class="scrolled ? 'text-charcoal-700' : 'text-cream-50/90 hover:text-cream-50'">Sign In</a>
-                    <a href="{{ route('public.menu') }}" class="btn-primary !px-6 !py-2.5">Order Now</a>
+                    <a href="{{ route('admin.login') }}" class="text-sm font-medium transition-colors hover:text-forest-700"
+                       :class="scrolled ? 'text-charcoal-700' : 'text-cream-50/90 hover:text-cream-50'">Staff Sign In</a>
+                    <a href="{{ route('public.menu') }}" class="btn-primary !px-6 !py-2.5">View Menu</a>
                 </div>
 
                 <button @click="open = !open" class="md:hidden inline-flex items-center justify-center rounded-lg p-2 transition-colors"
@@ -66,8 +66,8 @@
                     <a href="{{ route($route) }}" class="rounded-lg px-3 py-2.5 text-charcoal-700 hover:bg-cream-100 {{ request()->routeIs($route) ? 'text-forest-700 font-medium' : '' }}">{{ $label }}</a>
                 @endforeach
                 <div class="mt-2 flex flex-col gap-2 border-t border-cream-200 pt-3">
-                    <a href="{{ route('login') }}" class="rounded-lg px-3 py-2.5 text-charcoal-700 hover:bg-cream-100">Sign In</a>
-                    <a href="{{ route('public.menu') }}" class="btn-primary">Order Now</a>
+                    <a href="{{ route('admin.login') }}" class="rounded-lg px-3 py-2.5 text-charcoal-700 hover:bg-cream-100">Staff Sign In</a>
+                    <a href="{{ route('public.menu') }}" class="btn-primary">View Menu</a>
                 </div>
             </div>
         </div>

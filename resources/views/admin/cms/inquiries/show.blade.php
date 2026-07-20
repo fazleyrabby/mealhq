@@ -26,8 +26,8 @@
             <dd class="col-sm-10">{{ $inquiry->created_at->format('F d, Y H:i') }}</dd>
             <dt class="col-sm-2">Status</dt>
             <dd class="col-sm-10">
-                {!! $inquiry->is_read ? '<span class="badge bg-green">Read</span>' : '<span class="badge bg-yellow">Unread</span>' !!}
-                {!! $inquiry->is_replied ? '<span class="badge bg-green">Replied</span>' : '<span class="badge bg-secondary">Not Replied</span>' !!}
+                {!! $inquiry->is_read ? '<span class="badge text-bg-success">Read</span>' : '<span class="badge text-bg-warning">Unread</span>' !!}
+                {!! $inquiry->is_replied ? '<span class="badge text-bg-success">Replied</span>' : '<span class="badge text-bg-secondary">Not Replied</span>' !!}
             </dd>
         </dl>
     </div>

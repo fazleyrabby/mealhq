@@ -30,11 +30,11 @@
                 @forelse($groups as $group)
                 <tr>
                     <td>{{ $group->name }}</td>
-                    <td><span class="badge bg-secondary">{{ ucfirst($group->type) }}</span></td>
+                    <td><span class="badge text-bg-secondary">{{ ucfirst($group->type) }}</span></td>
                     <td>{{ $group->min_selection }}</td>
                     <td>{{ $group->max_selection }}</td>
                     <td>{{ $group->items->count() }}</td>
-                    <td>{!! $group->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $group->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.menu.modifiers.edit', $group) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.menu.modifiers.destroy', $group) }}" class="d-inline" onsubmit="return confirm('Delete?')">

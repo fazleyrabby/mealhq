@@ -18,7 +18,7 @@
                 <tr>
                     <td>{{ $variant->name }}</td>
                     <td>{{ $variant->price_adjustment > 0 ? '+' : '' }}{{ number_format($variant->price_adjustment, 2) }}</td>
-                    <td>{!! $variant->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $variant->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <form method="POST" action="#" class="d-inline" onsubmit="alert('Variant editing coming soon'); return false;">
                             @csrf @method('DELETE')

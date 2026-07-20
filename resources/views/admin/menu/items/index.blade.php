@@ -50,8 +50,8 @@
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->category->name ?? '-' }}</td>
                     <td>${{ number_format($item->base_price, 2) }}</td>
-                    <td><span class="badge bg-secondary">{{ str_replace('_', ' ', $item->channel_visibility) }}</span></td>
-                    <td>{!! $item->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td><span class="badge text-bg-secondary">{{ str_replace('_', ' ', $item->channel_visibility) }}</span></td>
+                    <td>{!! $item->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.menu.items.edit', $item) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <a href="{{ route('admin.menu.items.variants', $item) }}" class="btn btn-sm btn-outline-secondary">Variants</a>

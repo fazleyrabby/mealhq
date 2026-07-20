@@ -34,7 +34,7 @@
                     <td>{{ $recipe->ingredients->count() }}</td>
                     <td>${{ number_format($recipe->ingredients->sum(fn($ri) => $ri->cost * $ri->quantity * (1 + ($ri->waste_percentage ?? 0) / 100)), 4) }}</td>
                     <td>{{ $recipe->yield_amount }} {{ $recipe->yield_unit ?? 'units' }}</td>
-                    <td>{!! $recipe->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $recipe->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.inventory.recipes.edit', $recipe) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.inventory.recipes.destroy', $recipe) }}" class="d-inline" onsubmit="return confirm('Delete?')">

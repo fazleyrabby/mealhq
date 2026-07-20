@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +32,7 @@ class LoginController extends Controller
             RateLimiter::clear($this->throttleKey($request));
             $request->session()->regenerate();
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         RateLimiter::hit($this->throttleKey($request));
@@ -45,19 +44,6 @@ class LoginController extends Controller
 
     public function demo(string $role): RedirectResponse
     {
-        if ($role === 'customer') {
-            $customer = Customer::where('email', 'customer@mealhq.test')->first();
-
-            if (! $customer || ! Hash::check('password', $customer->password)) {
-                abort(401, 'Demo account not found. Run php artisan db:seed first.');
-            }
-
-            Auth::guard('customer')->login($customer);
-            request()->session()->regenerate();
-
-            return redirect()->intended('/');
-        }
-
         $user = User::where('email', 'admin@mealhq.test')->first();
 
         if (! $user || ! Hash::check('password', $user->password)) {
@@ -67,7 +53,7 @@ class LoginController extends Controller
         Auth::login($user);
         request()->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended(route('admin.dashboard'));
     }
 
     public function destroy(Request $request): RedirectResponse

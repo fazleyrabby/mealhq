@@ -31,12 +31,12 @@
                     <td>{{ $user->email }}</td>
                     <td>
                         @forelse($user->roles as $role)
-                            <span class="badge bg-blue-lt">{{ $role->name }}</span>
+                            <span class="badge text-bg-blue-lt">{{ $role->name }}</span>
                         @empty
                             <span class="text-muted">-</span>
                         @endforelse
                     </td>
-                    <td>{!! $user->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $user->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="d-inline" onsubmit="return confirm('Delete this user?')">

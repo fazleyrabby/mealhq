@@ -32,8 +32,8 @@
                     <td>{{ $inq->name }}</td>
                     <td>{{ $inq->email }}</td>
                     <td>{{ Str::limit($inq->subject ?? 'No subject', 40) }}</td>
-                    <td>{!! $inq->is_read ? '<span class="badge bg-green">Yes</span>' : '<span class="badge bg-yellow">New</span>' !!}</td>
-                    <td>{!! $inq->is_replied ? '<span class="badge bg-green">Yes</span>' : '<span class="badge bg-secondary">No</span>' !!}</td>
+                    <td>{!! $inq->is_read ? '<span class="badge text-bg-success">Yes</span>' : '<span class="badge text-bg-warning">New</span>' !!}</td>
+                    <td>{!! $inq->is_replied ? '<span class="badge text-bg-success">Yes</span>' : '<span class="badge text-bg-secondary">No</span>' !!}</td>
                     <td>{{ $inq->created_at->format('M d, H:i') }}</td>
                     <td>
                         <a href="{{ route('admin.cms.inquiries.show', $inq) }}" class="btn btn-sm btn-outline-primary">View</a>

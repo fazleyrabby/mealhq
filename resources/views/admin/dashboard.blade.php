@@ -76,12 +76,12 @@
                         @forelse($recentOrders as $order)
                         <tr>
                             <td>{{ $order->order_number }}</td>
-                            <td><span class="badge bg-secondary">{{ ucfirst($order->source) }}</span></td>
+                            <td><span class="badge text-bg-secondary">{{ ucfirst($order->source) }}</span></td>
                             <td>
                                 @php
-                                    $statusColors = ['pending' => 'yellow', 'confirmed' => 'blue', 'preparing' => 'orange', 'ready' => 'green', 'completed' => 'green', 'cancelled' => 'red'];
+                                    $statusColors = ['pending' => 'warning', 'confirmed' => 'info', 'preparing' => 'orange', 'ready' => 'success', 'completed' => 'success', 'cancelled' => 'danger'];
                                 @endphp
-                                <span class="badge bg-{{ $statusColors[$order->status] ?? 'secondary' }}">{{ ucfirst($order->status) }}</span>
+                                <span class="badge text-bg-{{ $statusColors[$order->status] ?? 'secondary' }}">{{ ucfirst($order->status) }}</span>
                             </td>
                             <td>${{ number_format($order->total_amount, 2) }}</td>
                             <td>{{ $order->created_at->format('M d, H:i') }}</td>

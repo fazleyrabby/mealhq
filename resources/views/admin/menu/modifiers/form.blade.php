@@ -63,7 +63,7 @@
                 <tr>
                     <td>{{ $item->name }}</td>
                     <td>${{ number_format($item->price, 2) }}</td>
-                    <td>{!! $item->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $item->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <form method="POST" action="#" class="d-inline" onsubmit="alert('Coming soon'); return false;">
                             @csrf @method('DELETE')

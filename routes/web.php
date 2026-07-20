@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\IngredientController;
 use App\Http\Controllers\Admin\KdsStationController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\ModifierGroupController;
+use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PosDrawerController;
 use App\Http\Controllers\Admin\PosOrderController;
@@ -21,11 +22,10 @@ use App\Http\Controllers\Admin\RestaurantTableController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StockAdjustmentController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Auth\AdminLoginController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\ContactInquiryController;
 use App\Http\Controllers\PublicWebsiteController;
 use Illuminate\Support\Facades\Route;
@@ -43,33 +43,9 @@ Route::post('/contact', [ContactInquiryController::class, 'store'])->name('publi
 
 /*
 |--------------------------------------------------------------------------
-| Customer Auth (web guard)
+| Public website (informational frontend — no customer auth)
 |--------------------------------------------------------------------------
 */
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'create'])->name('login');
-    Route::post('/login', [LoginController::class, 'store']);
-    Route::get('/demo-login/customer', [LoginController::class, 'demo'])
-        ->defaults('role', 'customer')
-        ->name('demo.login.customer');
-    Route::get('/register', [RegisterController::class, 'create'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store']);
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
-    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
-    Route::post('/reset-password', [ResetPasswordController::class, 'store'])->name('password.update');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
-    Route::get('/dashboard', function () {
-        if (auth()->user() && method_exists(auth()->user(), 'roles') && auth()->user()->roles->isNotEmpty()) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        return view('dashboard');
-    })->name('dashboard');
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -79,7 +55,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->name('admin.')->group(function () {
 
     // Admin Guest (not logged in)
-    Route::middleware('guest')->group(function () {
+    Route::middleware('guest.admin')->group(function () {
         Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
         Route::post('/login', [AdminLoginController::class, 'store']);
         Route::get('/demo-login/admin', [LoginController::class, 'demo'])
@@ -154,6 +130,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('menu/items/{item}/image', [MenuItemController::class, 'deleteImageAction'])->name('menu.items.image.delete');
         Route::get('menu/items/{item}/variants', [MenuItemController::class, 'variants'])->name('menu.items.variants');
         Route::post('menu/items/{item}/variants', [MenuItemController::class, 'storeVariant'])->name('menu.items.variants.store');
+        Route::post('menu/items/{item}/toggle-home-offer', [MenuItemController::class, 'toggleHomeOffer'])->name('menu.items.toggle-home-offer');
+
+        // Special Offers
+        Route::get('offers', [OfferController::class, 'index'])->name('offers.index');
+
+        // Staff / Users
+        Route::resource('users', UserController::class)
+            ->names('users')->parameters(['user' => 'user']);
+
+        // Roles & Permissions
+        Route::resource('roles', RoleController::class)
+            ->names('roles')->parameters(['role' => 'role']);
 
         // Modifier Groups
         Route::resource('menu/modifiers', ModifierGroupController::class)

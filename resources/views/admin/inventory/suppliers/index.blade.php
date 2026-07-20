@@ -31,7 +31,7 @@
                     <td>{{ $supplier->contact_name ?? '-' }}</td>
                     <td>{{ $supplier->email ?? '-' }}</td>
                     <td>{{ $supplier->phone ?? '-' }}</td>
-                    <td>{!! $supplier->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $supplier->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.inventory.suppliers.edit', $supplier) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.inventory.suppliers.destroy', $supplier) }}" class="d-inline" onsubmit="return confirm('Delete?')">

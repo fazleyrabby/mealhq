@@ -44,7 +44,14 @@
                                     <div class="flex flex-1 flex-col p-6">
                                         <div class="flex items-start justify-between gap-3">
                                             <h3 class="font-serif text-xl text-forest-800">{{ $item->name }}</h3>
-                                            <span class="whitespace-nowrap font-semibold text-clay-500">${{ number_format($item->base_price, 2) }}</span>
+                                            <div class="text-right">
+                                                @if($item->isOnSpecial())
+                                                    <span class="block text-xs font-medium text-charcoal-700/50 line-through">${{ number_format($item->base_price, 2) }}</span>
+                                                    <span class="whitespace-nowrap font-semibold text-clay-500">${{ number_format($item->effectivePrice(), 2) }}</span>
+                                                @else
+                                                    <span class="whitespace-nowrap font-semibold text-clay-500">${{ number_format($item->base_price, 2) }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         @if($item->description)
                                             <p class="mt-2 text-sm leading-relaxed text-charcoal-700/75">{{ $item->description }}</p>
@@ -53,10 +60,12 @@
                                             @if($item->is_featured)
                                                 <span class="rounded-full bg-olive-500/15 px-3 py-1 text-xs font-medium text-olive-600">Featured</span>
                                             @endif
+                                            @if($item->isOnSpecial())
+                                                <span class="rounded-full bg-clay-500/15 px-3 py-1 text-xs font-medium text-clay-600">Save {{ $item->discountPercent() }}%</span>
+                                            @endif
                                             @if($item->calories)
                                                 <span class="text-xs text-charcoal-700/55">{{ $item->calories }} cal</span>
                                             @endif
-                                            <a href="{{ route('login') }}" class="btn-outline ml-auto !px-5 !py-2 text-sm">Order</a>
                                         </div>
                                     </div>
                                 </article>

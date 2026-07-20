@@ -19,7 +19,7 @@
                             <td>${{ number_format($item->unit_price, 2) }}</td>
                             <td>
                                 @foreach($item->modifiers as $mod)
-                                <span class="badge bg-secondary">{{ $mod->modifier_item_name }} (+${{ number_format($mod->price_adjustment, 2) }})</span>
+                                <span class="badge text-bg-secondary">{{ $mod->modifier_item_name }} (+${{ number_format($mod->price_adjustment, 2) }})</span>
                                 @endforeach
                             </td>
                             <td>${{ number_format($item->subtotal, 2) }}</td>

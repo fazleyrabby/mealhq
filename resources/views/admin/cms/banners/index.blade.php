@@ -48,13 +48,13 @@
                     <td class="text-muted">{{ $banner->subtitle ?? '—' }}</td>
                     <td>
                         @if($banner->cta_text)
-                            <span class="badge bg-secondary">{{ $banner->cta_text }}</span>
+                            <span class="badge text-bg-secondary">{{ $banner->cta_text }}</span>
                         @else
                             <span class="text-muted">—</span>
                         @endif
                     </td>
                     <td>{{ $banner->sort_order }}</td>
-                    <td>{!! $banner->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $banner->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.cms.banners.edit', $banner) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.cms.banners.destroy', $banner) }}" class="d-inline" onsubmit="return confirm('Delete this banner?')">

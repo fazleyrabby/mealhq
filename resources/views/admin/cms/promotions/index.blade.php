@@ -37,7 +37,7 @@
                 @forelse($promotions as $promo)
                 <tr>
                     <td>{{ $promo->title }}</td>
-                    <td><span class="badge bg-secondary">{{ ucfirst($promo->discount_type) }}</span></td>
+                    <td><span class="badge text-bg-secondary">{{ ucfirst($promo->discount_type) }}</span></td>
                     <td>{{ $promo->discount_type === 'percentage' ? $promo->discount_value . '%' : '$' . number_format($promo->discount_value, 2) }}</td>
                     <td>
                         @if($promo->starts_at && $promo->ends_at)
@@ -50,7 +50,7 @@
                             <span class="text-muted">Always</span>
                         @endif
                     </td>
-                    <td>{!! $promo->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $promo->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.cms.promotions.edit', $promo) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.cms.promotions.destroy', $promo) }}" class="d-inline" onsubmit="return confirm('Delete?')">

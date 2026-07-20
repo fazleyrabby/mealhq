@@ -62,6 +62,15 @@
                     </div>
                 </div>
                 <div class="col-md-4">
+                    <label class="form-label">Special Price <span class="text-muted">(optional)</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" step="0.01" min="0" class="form-control @error('special_price') is-invalid @enderror" name="special_price" value="{{ old('special_price', $item->special_price ?? '') }}" placeholder="e.g. 80">
+                        @error('special_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <small class="text-muted">Leave empty if no offer. Shows as a discounted price on the menu.</small>
+                </div>
+                <div class="col-md-4">
                     <label class="form-label">Channel Visibility</label>
                     <select class="form-select @error('channel_visibility') is-invalid @enderror" name="channel_visibility">
                         <option value="all" {{ old('channel_visibility', $item->channel_visibility ?? 'all') === 'all' ? 'selected' : '' }}>All Channels</option>
@@ -84,6 +93,12 @@
                     <label class="form-check">
                         <input type="checkbox" class="form-check-input" name="is_featured" value="1" {{ old('is_featured', $item->is_featured ?? false) ? 'checked' : '' }}>
                         <span class="form-check-label">Featured</span>
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-check">
+                        <input type="checkbox" class="form-check-input" name="show_on_home_offers" value="1" {{ old('show_on_home_offers', $item->show_on_home_offers ?? false) ? 'checked' : '' }}>
+                        <span class="form-check-label">Show in Home Offers</span>
                     </label>
                 </div>
                 <div class="col-md-4">

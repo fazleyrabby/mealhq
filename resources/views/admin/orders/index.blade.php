@@ -52,7 +52,7 @@
                 @forelse($orders as $order)
                 <tr>
                     <td><a href="{{ route('admin.orders.show', $order) }}">{{ $order->order_number }}</a></td>
-                    <td><span class="badge bg-secondary">{{ ucfirst($order->source) }}</span></td>
+                    <td><span class="badge text-bg-secondary">{{ ucfirst($order->source) }}</span></td>
                     <td>{{ ucfirst(str_replace('_', ' ', $order->type)) }}</td>
                     <td><span class="badge bg-{{ ['pending'=>'yellow','confirmed'=>'blue','preparing'=>'orange','ready'=>'green','completed'=>'green','cancelled'=>'red'][$order->status] ?? 'secondary' }}">{{ ucfirst($order->status) }}</span></td>
                     <td>{{ $order->customer->name ?? $order->customer->email ?? 'Guest' }}</td>

@@ -90,8 +90,8 @@
                             <td>{{ $tax->name }}</td>
                             <td>{{ $tax->rate }}%</td>
                             <td>{{ ucfirst($tax->type) }}</td>
-                            <td>{!! $tax->is_default ? '<span class="badge bg-green">Yes</span>' : '' !!}</td>
-                            <td>{!! $tax->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                            <td>{!! $tax->is_default ? '<span class="badge text-bg-success">Yes</span>' : '' !!}</td>
+                            <td>{!! $tax->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                         </tr>
                         @endforeach
                     </tbody>

@@ -39,10 +39,12 @@ class MenuItemController extends Controller
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
+            'special_price' => 'nullable|numeric|min:0',
             'channel_visibility' => 'required|in:all,web_only,pos_only,qr_only',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'show_on_home_offers' => 'boolean',
             'is_taxable' => 'boolean',
         ], $this->imageMessages());
 
@@ -70,10 +72,12 @@ class MenuItemController extends Controller
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
+            'special_price' => 'nullable|numeric|min:0',
             'channel_visibility' => 'required|in:all,web_only,pos_only,qr_only',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'show_on_home_offers' => 'boolean',
             'is_taxable' => 'boolean',
         ], $this->imageMessages());
 
@@ -100,6 +104,15 @@ class MenuItemController extends Controller
         $item->update(['image_url' => null]);
 
         return redirect()->route('admin.menu.items.edit', $item)->with('success', 'Image deleted.');
+    }
+
+    public function toggleHomeOffer(Request $request, MenuItem $item)
+    {
+        $item->update([
+            'show_on_home_offers' => $request->boolean('show_on_home_offers'),
+        ]);
+
+        return back()->with('success', 'Home offers visibility updated.');
     }
 
     private function imageMessages(): array

@@ -48,7 +48,7 @@
                     <td><code>{{ $cat->slug }}</code></td>
                     <td>{{ $cat->parent->name ?? '-' }}</td>
                     <td>{{ $cat->sort_order }}</td>
-                    <td>{!! $cat->is_active ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>' !!}</td>
+                    <td>{!! $cat->is_active ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-danger">Inactive</span>' !!}</td>
                     <td>
                         <a href="{{ route('admin.menu.categories.edit', $cat) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('admin.menu.categories.destroy', $cat) }}" class="d-inline" onsubmit="return confirm('Delete?')">

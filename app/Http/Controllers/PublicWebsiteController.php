@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\CmsBanner;
 use App\Models\CmsPage;
-use App\Models\CmsPromotion;
+use App\Models\MenuItem;
 use App\Models\Setting;
 use App\Services\HtmlPurifierService;
 
@@ -15,8 +15,16 @@ class PublicWebsiteController extends Controller
     {
         $hero = CmsPage::where('slug', 'home')->first();
         $banners = CmsBanner::active()->ordered()->get();
-        $promotions = CmsPromotion::active()->get();
         $companyName = Setting::get('company_name', 'MealHQ');
+
+        $specials = MenuItem::query()
+            ->active()
+            ->visibleOnChannel('web_only')
+            ->onSpecial()
+            ->showOnHomeOffers()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
 
         if ($banners->count()) {
             $slides = $banners->map(fn ($b) => [
@@ -41,7 +49,7 @@ class PublicWebsiteController extends Controller
             ])->all();
         }
 
-        return view('public.home', compact('hero', 'banners', 'slides', 'promotions', 'companyName'));
+        return view('public.home', compact('hero', 'banners', 'slides', 'specials', 'companyName'));
     }
 
     public function menu()

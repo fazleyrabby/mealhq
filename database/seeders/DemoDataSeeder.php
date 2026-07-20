@@ -254,6 +254,22 @@ HTML;
             MenuItem::updateOrCreate(['slug' => $data['slug']], $data);
         }
 
+        // ─── Special Offers (20% off) ──────────────────────────────
+        $homeOffers = [
+            'grilled-ribeye-steak' => 27.99,
+            'pan-seared-salmon'    => 21.59,
+            'chocolate-lava-cake'  => 7.99,
+        ];
+        foreach ($homeOffers as $slug => $special) {
+            $item = MenuItem::where('slug', $slug)->first();
+            if ($item) {
+                $item->update([
+                    'special_price' => $special,
+                    'show_on_home_offers' => true,
+                ]);
+            }
+        }
+
         // ─── Menu Item Variants ───────────────────────────────────
         $wings = MenuItem::where('slug', 'chicken-wings')->first();
         if ($wings) {
