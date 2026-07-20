@@ -11,6 +11,11 @@
                 <form method="POST" action="{{ route('admin.operations.drawers.store') }}">
                     @csrf
                     <div class="mb-3">
+                        <label class="form-label">Drawer Name</label>
+                        <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" placeholder="e.g. Main Register" required>
+                        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Opening Balance</label>
                         <div class="input-group">
                             <span class="input-group-text">$</span>
@@ -32,18 +37,21 @@
             <div class="card-header"><h3 class="card-title">Drawers</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table">
-                    <thead><tr><th>Opened By</th><th>Opened At</th><th>Opening Balance</th><th>Expected</th><th>Actual</th><th>Status</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>Name</th><th>Opened By</th><th>Opened At</th><th>Opening Balance</th><th>Status</th><th>Actions</th></tr></thead>
                     <tbody>
                         @forelse($drawers as $drawer)
                         <tr>
+                            <td>{{ $drawer->name }}</td>
                             <td>{{ $drawer->user->name ?? '-' }}</td>
-                            <td>{{ $drawer->opened_at->format('M d, H:i') }}</td>
-                            <td>\${{ number_format($drawer->opening_balance, 2) }}</td>
-                            <td>\${{ number_format($drawer->expected_closing_balance ?? 0, 2) }}</td>
-                            <td>\${{ number_format($drawer->actual_closing_balance ?? 0, 2) }}</td>
-                            <td><span class="badge bg-{{ $drawer->is_open ? 'green' : 'secondary' }}">{{ $drawer->is_open ? 'Open' : 'Closed' }}</span></td>
+                            <td>{{ $drawer->opened_at?->format('M d, H:i') ?? '-' }}</td>
+                            <td>${{ number_format($drawer->opening_balance, 2) }}</td>
                             <td>
-                                @if($drawer->is_open)
+                                <span class="badge bg-{{ $drawer->status === 'open' ? 'green' : 'secondary' }}">
+                                    {{ $drawer->status === 'open' ? 'Open' : ucfirst($drawer->status) }}
+                                </span>
+                            </td>
+                            <td>
+                                @if($drawer->status === 'open')
                                 <form method="POST" action="{{ route('admin.operations.drawers.close', $drawer) }}" class="d-inline">
                                     @csrf
                                     <button class="btn btn-sm btn-outline-warning">Close</button>
@@ -52,7 +60,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="7" class="text-center text-muted py-4">No drawers</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">No drawers</td></tr>
                         @endforelse
                     </tbody>
                 </table>

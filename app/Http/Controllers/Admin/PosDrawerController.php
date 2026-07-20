@@ -14,7 +14,7 @@ class PosDrawerController extends Controller
         $result = $listing->process(
             PosDrawer::with('user'),
             [],
-            ['is_open' => ['1', '0']],
+            ['status' => ['open', 'closed', 'pending_review']],
             'created_at',
             'desc'
         );
@@ -25,16 +25,18 @@ class PosDrawerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'name' => 'required|string|max:100',
             'opening_balance' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:255',
         ]);
 
         PosDrawer::create([
-            'user_id' => auth()->id(),
+            'name' => $validated['name'],
+            'status' => 'open',
             'opening_balance' => $validated['opening_balance'],
-            'notes' => $validated['notes'] ?? null,
+            'opened_by' => auth()->id(),
             'opened_at' => now(),
-            'is_open' => true,
+            'notes' => $validated['notes'] ?? null,
         ]);
 
         return redirect()->route('admin.operations.drawers.index')->with('success', 'Drawer opened.');
@@ -42,13 +44,14 @@ class PosDrawerController extends Controller
 
     public function close(PosDrawer $posDrawer)
     {
-        if (! $posDrawer->is_open) {
-            return back()->with('error', 'Drawer is already closed.');
+        if ($posDrawer->status !== 'open') {
+            return back()->with('error', 'Drawer is not open.');
         }
 
         $posDrawer->update([
-            'is_open' => false,
+            'status' => 'closed',
             'closed_at' => now(),
+            'closed_by' => auth()->id(),
         ]);
 
         return back()->with('success', 'Drawer closed.');
