@@ -14,12 +14,11 @@ class RestaurantTableController extends Controller
     {
         $result = $listing->process(
             RestaurantTable::with('zone'),
-            ['name'],
+            ['table_number'],
             [
                 'status' => ['available', 'occupied', 'reserved', 'cleaning', 'maintenance'],
-                'is_active' => ['1', '0'],
             ],
-            'name',
+            'table_number',
             'asc'
         );
 
@@ -36,10 +35,9 @@ class RestaurantTableController extends Controller
     public function storeTable(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:50',
+            'table_number' => 'required|string|max:10',
             'zone_id' => 'nullable|exists:table_zones,id',
             'capacity' => 'required|integer|min:1',
-            'is_active' => 'boolean',
         ]);
 
         RestaurantTable::create($validated);
@@ -57,10 +55,9 @@ class RestaurantTableController extends Controller
     public function updateTable(Request $request, RestaurantTable $table)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:50',
+            'table_number' => 'required|string|max:10',
             'zone_id' => 'nullable|exists:table_zones,id',
             'capacity' => 'required|integer|min:1',
-            'is_active' => 'boolean',
         ]);
 
         $table->update($validated);

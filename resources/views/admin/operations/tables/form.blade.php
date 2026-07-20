@@ -11,9 +11,9 @@
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label class="form-label">Table Name/Number</label>
-                    <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $table->name ?? '') }}" required>
-                    @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <label class="form-label">Table Number</label>
+                    <input type="text" class="form-control @error('table_number') is-invalid @enderror" name="table_number" value="{{ old('table_number', $table->table_number ?? '') }}" required>
+                    @error('table_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Zone</label>

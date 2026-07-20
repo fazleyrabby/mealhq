@@ -26,11 +26,11 @@
 
     <div class="table-responsive">
         <table class="table table-vcenter card-table">
-            <thead><tr><th>Name</th><th>Zone</th><th>Capacity</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Table #</th><th>Zone</th><th>Capacity</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
                 @forelse($tables as $table)
                 <tr>
-                    <td>{{ $table->name }}</td>
+                    <td>{{ $table->table_number }}</td>
                     <td>{{ $table->zone->name ?? '-' }}</td>
                     <td>{{ $table->capacity }} seats</td>
                     <td>
