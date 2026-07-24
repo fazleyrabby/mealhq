@@ -31,7 +31,7 @@
                     <td><span class="badge bg-{{ $adj->type === 'addition' ? 'green' : ($adj->type === 'removal' ? 'red' : 'orange') }}">{{ ucfirst($adj->type) }}</span></td>
                     <td>{{ $adj->quantity }} {{ $adj->ingredient->unit->abbreviation ?? '' }}</td>
                     <td>{{ $adj->reason ?? '-' }}</td>
-                    <td>{{ $adj->user->name ?? '-' }}</td>
+                    <td>{{ $adj->adjustedBy->name ?? '-' }}</td>
                     <td>{{ $adj->created_at->format('M d, H:i') }}</td>
                 </tr>
                 @empty

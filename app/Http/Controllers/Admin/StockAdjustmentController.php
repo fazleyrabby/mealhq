@@ -13,7 +13,7 @@ class StockAdjustmentController extends Controller
     public function index(Request $request, AdminListingService $listing)
     {
         $result = $listing->process(
-            StockAdjustment::with('ingredient.unit', 'user'),
+            StockAdjustment::with('ingredient.unit', 'adjustedBy'),
             [],
             ['type' => ['addition', 'removal', 'correction']],
             'created_at',
@@ -44,7 +44,7 @@ class StockAdjustmentController extends Controller
         // Create the adjustment
         StockAdjustment::create([
             'ingredient_id' => $validated['ingredient_id'],
-            'user_id' => auth()->id(),
+            'adjusted_by' => auth()->id(),
             'type' => $validated['type'],
             'quantity' => $validated['quantity'],
             'reason' => $validated['reason'],
