@@ -5,8 +5,14 @@ services:
       dockerfile: Dockerfile
     container_name: mealhq_app
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:8084:80"
+    # Fix storage/bootstrap ownership at startup so php-fpm (www-data) can write
+    # logs/cache/sessions. storage is a bind mount, so the image's chmod is not enough.
+    command: sh -c "chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache && exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mealhq.rule=Host(`mealhq.fazleyrabbi.xyz`)"
+      - "traefik.http.routers.mealhq.entrypoints=web"
+      - "traefik.http.services.mealhq.loadbalancer.server.port=80"
     env_file:
       - .env
     volumes:
@@ -17,6 +23,7 @@ services:
       mysql:
         condition: service_healthy
     networks:
+      - traefik
       - mealhq
 
   mysql:
@@ -42,5 +49,7 @@ volumes:
   mysql_data:
 
 networks:
+  traefik:
+    external: true
   mealhq:
     driver: bridge
