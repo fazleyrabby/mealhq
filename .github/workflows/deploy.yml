@@ -35,6 +35,7 @@ jobs:
 
       - name: Copy demo images
         run: |
+          sudo chown -R fazley:fazley /home/fazley/apps/mealhq/storage/app/public/
           rsync -a "$GITHUB_WORKSPACE/storage/app/public/" /home/fazley/apps/mealhq/storage/app/public/
 
       - name: Post-deploy
