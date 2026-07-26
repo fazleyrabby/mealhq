@@ -25,18 +25,23 @@ jobs:
             --exclude 'vendor' \
             --exclude 'node_modules' \
             --exclude 'public/build' \
+            --exclude 'storage' \
+            --exclude 'bootstrap/cache' \
             "$GITHUB_WORKSPACE/" \
             /home/fazley/apps/mealhq/
           cd /home/fazley/apps/mealhq
           docker compose -f docker-compose.prod.yml down || true
           docker compose -f docker-compose.prod.yml up -d --build
 
+      - name: Copy demo images
+        run: |
+          rsync -a "$GITHUB_WORKSPACE/storage/app/public/" /home/fazley/apps/mealhq/storage/app/public/
+
       - name: Post-deploy
         run: |
           docker exec mealhq_app php artisan key:generate --force || true
           docker exec mealhq_app php artisan migrate --force
           docker exec mealhq_app php artisan config:cache
-          docker exec mealhq_app php artisan route:cache
           docker exec mealhq_app php artisan view:cache
 
       - name: Health check
