@@ -24,6 +24,7 @@ jobs:
             --exclude '.git' \
             --exclude 'vendor' \
             --exclude 'node_modules' \
+            --exclude 'public/build' \
             "$GITHUB_WORKSPACE/" \
             /home/fazley/apps/mealhq/
           cd /home/fazley/apps/mealhq
