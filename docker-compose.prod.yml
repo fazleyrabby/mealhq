@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     # Fix storage/bootstrap ownership at startup so php-fpm (www-data) can write
     # logs/cache/sessions. storage is a bind mount, so the image's chmod is not enough.
-    command: sh -c "chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache && exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"
+    command: sh -c "chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache && ln -sf /var/www/html/storage/app/public /var/www/html/public/storage && exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mealhq.rule=Host(`mealhq.fazleyrabbi.xyz`)"
@@ -19,37 +19,17 @@ services:
       - .:/var/www/html
       - ./storage:/var/www/html/storage
       - ./bootstrap/cache:/var/www/html/bootstrap/cache
-    depends_on:
-      mysql:
-        condition: service_healthy
     networks:
       - traefik
       - mealhq
+      - mysql-shared
 
-  mysql:
-    image: mysql:8.0
-    container_name: mealhq_mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-mealhq}
-      MYSQL_USER: ${DB_USERNAME:-mealhq}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - mealhq
-
-volumes:
-  mysql_data:
+volumes: {}
 
 networks:
   traefik:
     external: true
   mealhq:
     driver: bridge
+  mysql-shared:
+    external: true
